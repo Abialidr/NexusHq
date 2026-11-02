@@ -53,7 +53,7 @@ export default function SiteHeader({ name, role }: { name: string; role: string 
             ))}
           </nav>
           <div className="head-actions">
-            <Link className="btn btn-ghost desktop-only" href="/3d" style={{ minHeight: 40, padding: "0 14px", fontSize: 14 }}>3D café</Link>
+            <Link className="btn btn-ghost" href="/3d" style={{ minHeight: 40, padding: "0 14px", fontSize: 14 }}>3D café</Link>
             <ThemeToggle />
             <button ref={menuBtn} className="icon-btn menu-btn" aria-label="Open menu" aria-controls="site-drawer" aria-expanded={open} onClick={() => setOpen(true)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>

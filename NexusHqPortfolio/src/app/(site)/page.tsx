@@ -83,7 +83,7 @@ export default async function HomePage() {
 
           <TestimonialCards items={testimonials} placement="home" />
 
-          <section className="section desktop-only">
+          <section className="section">
             <Link className="card cafe-card" href="/3d">
               <div className="cafe-shot">
                 <Image src="/images/cafe-preview.jpg" alt="The 3D coffee & code café: the owner coding at the counter" fill sizes="(max-width: 900px) 100vw, 600px" />
