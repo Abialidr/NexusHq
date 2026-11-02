@@ -145,6 +145,7 @@ const [cmd, ...rest] = process.argv.slice(2);
 // Only called while no command is running, so any run still marked running/stopping lost its worker (crash or restart).
 async function resetOrphanedRuns(supabase: SupabaseClient) {
   const note = "Reset: the worker stopped during this run";
+  await supabase.from("commands").update({ status: "error", error: note, finished_at: new Date().toISOString() }).eq("status", "running");
   const { data } = await supabase.from("job_runs")
     .update({ status: "error", error: note, finished_at: new Date().toISOString() })
     .in("status", ["running", "stopping"]).select("id");
