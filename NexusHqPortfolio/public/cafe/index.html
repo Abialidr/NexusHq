@@ -26,8 +26,11 @@ html,body{overflow:hidden;overscroll-behavior:none;touch-action:none}
 /* pan-x too: on phones the stage is rotated 90deg (forced landscape), so a vertical finger swipe
    arrives as a horizontal pan in the panel's own coordinates; pan-y alone blocked scrolling there */
 .panel,.contact-dialog{touch-action:pan-x pan-y;overscroll-behavior:contain}
-.panel-about{width:470px;background:#fbf8f2}
-.panel-skills{width:460px;background:#fbf8f2}
+.panel-about,.panel-skills{width:min(380px,34%);background:#fbf8f2;padding:20px;overflow-wrap:anywhere}
+.panel-about{left:16px;right:auto}
+.panel-about > *,.panel-skills > *{flex-shrink:0}
+.panel-about .about-hero{flex-wrap:wrap}
+.panel-about .about-facts{grid-template-columns:1fr}
 .about-hero{display:flex;align-items:center;gap:16px;padding:18px;border:1px solid #e8ded1;border-radius:18px;background:#fff;box-shadow:0 8px 26px rgba(56,39,26,.06)}
 .about-avatar{width:82px;height:82px;flex:none;border-radius:18px;object-fit:cover;object-position:center 28%;border:3px solid #f1e9df;background:#f1e9df}
 .about-monogram{width:82px;height:82px;flex:none;border-radius:18px;display:grid;place-items:center;background:#ead9c7;color:#6b3c28;font:800 32px 'Bricolage Grotesque',sans-serif}
@@ -83,7 +86,7 @@ html,body{overflow:hidden;overscroll-behavior:none;touch-action:none}
 .skill-group-title{font:800 17px/1.2 'Bricolage Grotesque',sans-serif;color:#29211d}
 .skill-pills{display:flex;flex-wrap:wrap;gap:8px}
 .skill-pill{display:inline-flex;align-items:center;min-height:30px;padding:3px 11px;border-radius:999px;border:1px solid #e3d5c7;background:#f8f2ea;color:#493a2e;font-size:13px;font-weight:600;line-height:1.25}
-@media(max-width:560px){.panel-about,.panel-skills{width:calc(100% - 32px)}.about-facts{grid-template-columns:1fr}}
+@media(max-width:560px){.panel-about,.panel-skills{width:46%;padding:12px}.about-facts{grid-template-columns:1fr}}
 .float-frame{animation:float-in .45s cubic-bezier(.2,.8,.2,1) both}
 @keyframes float-in{from{opacity:0;transform:translateY(26px) scale(.94) rotate(-.6deg)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.float-frame{animation:none}}

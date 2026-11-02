@@ -16,7 +16,7 @@ export default async function AboutPage() {
           <span className="kicker">About me</span>
           <h1 className="h-page">Hey, I am {profile.name}.</h1>
           <p className="lead">{profile.intro}</p>
-          <div className="facts" style={{ gridTemplateColumns: "repeat(3,1fr)", marginTop: 8 }}>
+          <div className="facts about-facts" style={{ marginTop: 8 }}>
             <div><span>Based in</span><b>{profile.location}</b></div>
             <div><span>Works</span><b>{profile.workMode}</b></div>
             {profile.currently && <div><span>Now</span><b>{profile.currently}</b></div>}

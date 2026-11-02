@@ -308,7 +308,16 @@ button.btn { font-family: var(--sans); }
 .split-card { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; margin-bottom: 40px; }
 @media (max-width: 900px) { .featured-card, .split-card { grid-template-columns: 1fr; } }
 .contact-link { flex-direction: row; align-items: center; padding: 16px 20px; }
-.contact-link .kicker { width: 84px; }
+.contact-link .kicker { width: 84px; flex-shrink: 0; }
+.contact-link > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.grid > *, .hero > *, .stack { min-width: 0; }
+.hero, .grid { overflow-wrap: anywhere; }
+.about-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.about-facts > div { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .about-facts { grid-template-columns: 1fr; }
+  .contact-link { flex-direction: column; align-items: flex-start; gap: 4px; }
+}
 .form-note { font-size: 13px; color: var(--muted); }
 .empty { padding: 48px 0; color: var(--muted); }
 .wrap.narrow { max-width: 760px; }

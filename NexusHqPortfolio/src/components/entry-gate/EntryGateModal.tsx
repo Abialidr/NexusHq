@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./EntryGateModal.module.css";
-import { useIsMobile } from "@/lib/device";
 
 const MODE_CHOSEN_KEY = "nexushq_mode_chosen";
 const VISITOR_KEY = "nexushq_visitor";
@@ -27,11 +26,6 @@ export default function EntryGateModal() {
   const [mode, setMode] = useState<Mode | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [knownVisitor, setKnownVisitor] = useState(false);
-  // phones and tablets cannot run the 3D café smoothly: skip the choice and go straight to 2D
-  const isMobile = useIsMobile();
-  useEffect(() => {
-    if (isMobile) setMode("2D");
-  }, [isMobile]);
 
   useEffect(() => {
     setHasMounted(true);
@@ -126,7 +120,7 @@ export default function EntryGateModal() {
             />
             {errors.email ? <p className={styles.errorText}>{errors.email}</p> : null}
           </div>
-          {!isMobile && <div className={styles.field} role="group" aria-label="Choose your experience">
+          <div className={styles.field} role="group" aria-label="Choose your experience">
             <span className={styles.label}>Choose your experience</span>
             <div className={styles.modeGroup}>
               <button
@@ -149,9 +143,9 @@ export default function EntryGateModal() {
               </button>
             </div>
             {errors.mode ? <p className={styles.errorText}>{errors.mode}</p> : null}
-          </div>}
+          </div>
           <button type="submit" className={styles.submitButton} disabled={isDisabled}>
-            {isMobile ? "Explore the portfolio" : "Continue"}
+            Continue
           </button>
         </form>
       </div>
