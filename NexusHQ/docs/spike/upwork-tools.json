@@ -1,0 +1,1194 @@
+{
+  "source": "https://mcp.upwork.com/mcp via Claude Code 2.1.308 (listed, not called)",
+  "listed_at": "2026-10-23T15:49:14.725Z",
+  "count": 34,
+  "tools": [
+    {
+      "name": "mcp__upwork__upwork__boost_profile",
+      "description": "Despite the name, this tool CANNOT start or increase a profile boost or the availability badge (PIB). It only reads their status and stops, pauses or switches off ones already running. Starting or increasing ad spend is done on upwork.com, not here.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\n\nActions:\n- get_status: Read current state of visibility boosters: availability badge (on/off, weekly Connects budget, cost) and profile boost ad (status, bid, targeting). No params required.\n- toggle_availability_badge: Switch OFF the Availability Badge (Available Now). Enabling it is done on upwork.com — it starts a RECURRING WEEKLY Connects charge, so it is not set up on the user's behalf here. Calling with enabled=true returns the link to set it up. Params: enabled (bool, required — false turns the badge off).\n- create_profile_boost: NOT AVAILABLE HERE — profile boost ads are created on upwork.com. A boost bid is an amount you choose for advertising, so it is not set up on the user's behalf through this tool. Calling this returns the link to set it up. Use get_status to read an existing ad, and manage_profile_boost to stop or pause one. Takes no params.\n- manage_profile_boost: Stop or pause an existing profile boost ad. Restart and update are done on upwork.com: both increase spend, so they are not performed on the user's behalf here. Params: action (string, required — stop or pause; restart and update return the link to upwork.com instead), ad_id (string, required).\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get_status",
+              "toggle_availability_badge",
+              "create_profile_boost",
+              "manage_profile_boost"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__confirm_attachment_upload",
+      "description": "Confirm uploaded files so they are retained in Upwork storage. Applies to fallback messages, offer and milestones uploads: job, proposals and invitation uploads are retained during upload (confirming them has no effect). Permanent: confirmed files are kept and cannot be un-confirmed or deleted through this API; re-confirming is a no-op. Requires the upload context and the file_uid values returned from upload.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- confirm: Params: file_ids (array of strings, required — file_uid values to confirm); task_id (string, required — the task_id returned by start_attachment_upload for these files); context (string, optional — taken from the upload session; if given it must name the same backend the session was started with, or the call is refused). Only file_uid values that get_upload_status reports as done for that task_id can be confirmed; anything else is refused. Upload sessions last 30 minutes, so confirm promptly. Files uploaded through the inline component are already stored and must NOT be confirmed.\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "confirm"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__confirm_draft",
+      "description": "Deprecated alias of confirm_preview (identical behaviour) — prefer confirm_preview. For job postings specifically: calling create_draft (type='job_posting') always saves a real DRAFT — it never publishes, no matter what the action is labeled, and it leaves no preview to confirm here. To publish an existing job posting, call post_job update with status: 'published' and confirm that (type='job_update') — that step makes the job live to whoever its access level allows, opening it for proposals immediately.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- confirm: Confirm and execute a preview using preview_id only. Params: type (string, required), preview_id (string, required — from the create preview response; the legacy name draft_id is also accepted). Do not pass the returned params; they are loaded from server storage.\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "confirm"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "properties": {
+              "draft_id": {
+                "description": "Legacy name for preview_id, accepted so clients built against the published confirm_draft metadata keep working. Send preview_id instead; if both are present, preview_id wins.",
+                "type": "string"
+              },
+              "preview_id": {
+                "description": "Server-issued preview_id from the create preview response. Required unless the legacy draft_id is given instead. confirm_preview executes stored server params only — do not pass confirm payloads.",
+                "type": "string"
+              },
+              "type": {
+                "description": "The entity type, from the enum. confirm_preview does NOT execute offer ACCEPTANCE (that is finalized on upwork.com via the finalize_url); offer decline and request-changes ARE supported.",
+                "enum": [
+                  "job_posting",
+                  "job_update",
+                  "job_renew",
+                  "proposal",
+                  "proposal_accept_invitation",
+                  "ai_interview_start",
+                  "proposal_decline_invitation",
+                  "proposal_withdraw",
+                  "proposal_edit_terms",
+                  "milestone_create",
+                  "milestone_edit",
+                  "milestone_delete",
+                  "milestone_reject",
+                  "milestone_submit",
+                  "invitation",
+                  "offer_decline",
+                  "offer_request_changes",
+                  "proposal_decline",
+                  "uma_shortlist_request",
+                  "contract_proposal",
+                  "contract_pause",
+                  "contract_restart",
+                  "contract_end",
+                  "profile_update_title",
+                  "profile_update_overview",
+                  "profile_set_video",
+                  "profile_update_availability",
+                  "profile_add_employment",
+                  "profile_set_skills",
+                  "profile_update_employment",
+                  "profile_remove_employment",
+                  "profile_add_language",
+                  "profile_update_language",
+                  "profile_remove_language",
+                  "profile_add_education",
+                  "profile_update_education",
+                  "profile_remove_education",
+                  "profile_add_other_experience",
+                  "profile_update_other_experience",
+                  "profile_remove_other_experience",
+                  "availability_badge_toggle",
+                  "profile_boost_create",
+                  "profile_boost_manage",
+                  "account_update_company",
+                  "account_update_location",
+                  "account_update_profile",
+                  "account_rename_team",
+                  "account_create_team",
+                  "account_invite_member",
+                  "byo_invite",
+                  "byo_resend",
+                  "byo_withdraw",
+                  "agency_project_create",
+                  "agency_project_update",
+                  "agency_project_reorder",
+                  "agency_project_delete",
+                  "meeting_request",
+                  "meeting_schedule",
+                  "meeting_reschedule",
+                  "meeting_cancel"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "params",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__confirm_preview",
+      "description": "Confirm and execute a previously prepared preview for job postings, proposals, invitation accepts, invitations, milestones, profile updates, and offer decline / request-changes. Requires preview_id from the prior preview action. Do NOT use to ACCEPT an offer — accepting is finalized on upwork.com via the finalize_url returned by respond_to_offer accept. For job postings specifically: calling create_draft (type='job_posting') always saves a real DRAFT — it never publishes, no matter what the action is labeled, and it leaves no preview to confirm here. To publish an existing job posting, call post_job update with status: 'published' and confirm that (type='job_update') — that step makes the job live to whoever its access level allows, opening it for proposals immediately.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- confirm: Confirm and execute a preview using preview_id only. Params: type (string, required), preview_id (string, required — from the create preview response; the legacy name draft_id is also accepted). Do not pass the returned params; they are loaded from server storage.\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "confirm"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "properties": {
+              "draft_id": {
+                "description": "Legacy name for preview_id, accepted so clients built against the published confirm_draft metadata keep working. Send preview_id instead; if both are present, preview_id wins.",
+                "type": "string"
+              },
+              "preview_id": {
+                "description": "Server-issued preview_id from the create preview response. Required unless the legacy draft_id is given instead. confirm_preview executes stored server params only — do not pass confirm payloads.",
+                "type": "string"
+              },
+              "type": {
+                "description": "The entity type, from the enum. confirm_preview does NOT execute offer ACCEPTANCE (that is finalized on upwork.com via the finalize_url); offer decline and request-changes ARE supported.",
+                "enum": [
+                  "job_posting",
+                  "job_update",
+                  "job_renew",
+                  "proposal",
+                  "proposal_accept_invitation",
+                  "ai_interview_start",
+                  "proposal_decline_invitation",
+                  "proposal_withdraw",
+                  "proposal_edit_terms",
+                  "milestone_create",
+                  "milestone_edit",
+                  "milestone_delete",
+                  "milestone_reject",
+                  "milestone_submit",
+                  "invitation",
+                  "offer_decline",
+                  "offer_request_changes",
+                  "proposal_decline",
+                  "uma_shortlist_request",
+                  "contract_proposal",
+                  "contract_pause",
+                  "contract_restart",
+                  "contract_end",
+                  "profile_update_title",
+                  "profile_update_overview",
+                  "profile_set_video",
+                  "profile_update_availability",
+                  "profile_add_employment",
+                  "profile_set_skills",
+                  "profile_update_employment",
+                  "profile_remove_employment",
+                  "profile_add_language",
+                  "profile_update_language",
+                  "profile_remove_language",
+                  "profile_add_education",
+                  "profile_update_education",
+                  "profile_remove_education",
+                  "profile_add_other_experience",
+                  "profile_update_other_experience",
+                  "profile_remove_other_experience",
+                  "availability_badge_toggle",
+                  "profile_boost_create",
+                  "profile_boost_manage",
+                  "account_update_company",
+                  "account_update_location",
+                  "account_update_profile",
+                  "account_rename_team",
+                  "account_create_team",
+                  "account_invite_member",
+                  "byo_invite",
+                  "byo_resend",
+                  "byo_withdraw",
+                  "agency_project_create",
+                  "agency_project_update",
+                  "agency_project_reorder",
+                  "agency_project_delete",
+                  "meeting_request",
+                  "meeting_schedule",
+                  "meeting_reschedule",
+                  "meeting_cancel"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "params",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__find_freelancers",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nFreelancers on the marketplace: search them by keywords and filters, get the freelancers recommended for one of your job postings (smart_search), or view one profile. Freelancer/agency: no smart_search. A result whose rate carries \"*Boosted\" is a paid ad placement the freelancer bought, not a ranking of merit — say so when presenting it.\nActions: search, get_profile, smart_search.\nCall get_tool_help(tool_name=\"find_freelancers\") for how to use this tool.",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "search",
+              "get_profile",
+              "smart_search"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__find_jobs",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nMarketplace job postings: search them by keywords and filters, get one by id, or get the jobs recommended for the freelancer's own profile (smart_search).\nActions: search, get, smart_search.\nCall get_tool_help(tool_name=\"find_jobs\") for how to use this tool.",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "search",
+              "get",
+              "smart_search"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__find_saved_jobs",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nBrowse your saved (favorite) job postings. Each saved job includes a ready-to-use url. Use find_jobs action=get for full job details. Use save_job action=save or action=unsave to update bookmarks.\n\nActions:\n- list: List saved jobs for the current freelancer. Params: limit (integer, 1–10, default 10), offset (number, default 0), job_ids (array of string, optional — filter by job IDs), followed (boolean, optional — defaults to true, i.e. jobs the user currently has saved. Unsaving keeps the record with followed=false, so followed=false lists jobs that were saved and then removed — not current bookmarks).\n- count: Get the number of saved jobs. No params.\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list",
+              "count"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_account",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nView account info, organization details, teams and the member roster.\n\nActions:\n- get_user_details: Get user details. Params: id (string, optional — defaults to current user).\n- get_organization: Get current organization, including its teams (child organizations) when it has any. Teams are informational: they are NOT selectable accounts, so a team id must never be passed as org_uid — list_accounts returns the only usable org_uid values. No params.\n- list_teams: List the teams you belong to under the selected organization, optionally filtered by what you may do in each. Params: action (string, optional — one of approve_milestone, end_contract, hire, invite_freelancer, post_job, send_offer); with it each team carries allowed true/false. Team ids are team_uid FILTER values for other tools — never an org_uid. whole_organization describes acting company-wide, which is done by omitting team_uid, not by passing the org uid.\n- list_members: List the people on the selected client account: abbreviated name, Owner or Member, Active/Inactive, join date, company-wide roles and the teams they sit in with their roles there; an owner is listed once. Params: limit (integer, optional), offset (integer, optional — next_offset from the previous page).\n- get_company: Get the company details of the organization you are acting as. To read a different account of yours, call again with that org_uid. For a marketplace job's client, use find_jobs action=get with the job ID instead. No params.\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get_user_details",
+              "get_organization",
+              "list_teams",
+              "list_members",
+              "get_company"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_agency",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nView your agency: teams, members, portfolio projects, and organization details. To change the portfolio, use update_agency. Use get_messages list_rooms to view rooms.\n\nActions:\n- list_agencies: List agencies you belong to. No params required.\n- list_teams: List teams (child organizations) in the current org. Params: limit (integer, 1–10, default 10).\n- list_members: List staff members in the current org. Params: limit (integer, 1–10, default 10), cursor (string, optional — pageInfo.endCursor from a prior list for the next page; alias: after).\n- list_projects: List this agency's portfolio projects — the showcase clients read when deciding whether to engage the agency. Returns title, description, project URL, completion date, rank and skill ids. Params: limit (integer, 1-20), offset (integer, optional — for the next page; total_count and has_more are in the response). Project attachments are not exposed yet.\n- get_profile: View your agency's public profile: summary, website, size, minimum project size, year founded, office locations and skills. Reads the agency for the selected account, so no params are required. Rates and services are not included yet. Street addresses are never returned — locations give city, state, country and postal code.\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list_agencies",
+              "list_teams",
+              "list_members",
+              "list_projects",
+              "get_profile"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_draft",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nDeprecated alias of get_preview (identical behaviour) — prefer get_preview.\n\nActions:\n- get: Get a pending preview for review. Params: type (required — the preview type), id (required — the preview_id returned by the creating action).\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_freelancer_dashboard",
+      "description": "Get a consolidated overview of what's new: invitations, offers, messages, matching jobs, contract updates, connects balance, ID verification, and promotions — all in one call.\n\nActions:\n- check: Check all activity sources in parallel. No params required.\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "check"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_freelancer_financials",
+      "description": "View your own financial data as a freelancer or agency: the balance available to withdraw right now, earnings and transaction history, connects balance, and time report. Use this to verify a payment or earnings release, or to answer how much money is currently in the account.\nActions: available_balance, summary, transactions, connects_balance, timesheets.\nCall get_tool_help(tool_name=\"get_freelancer_financials\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "available_balance",
+              "summary",
+              "transactions",
+              "connects_balance",
+              "timesheets"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"get_freelancer_financials\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_messages",
+      "description": "List rooms, find rooms by context, and read messages.\nActions: list_rooms, search_rooms, find_room, list_messages, get_message.\nCall get_tool_help(tool_name=\"get_messages\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list_rooms",
+              "search_rooms",
+              "find_room",
+              "list_messages",
+              "get_message"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"get_messages\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_preview",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nRetrieve a pending server-stored preview without consuming it.\n\nActions:\n- get: Get a pending preview for review. Params: type (required — the preview type), id (required — the preview_id returned by the creating action).\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_profile",
+      "description": "View freelancer profile, transaction history, and connects balance.\nActions: get, list_highlights, transactions, connects_balance.\nCall get_tool_help(tool_name=\"get_profile\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get",
+              "list_highlights",
+              "transactions",
+              "connects_balance"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"get_profile\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_tool_help",
+      "description": "Get the full reference for a tool: its complete description and input schema, including every action and all required and optional parameters. Call this before using a tool whose listed description is brief and you need the full field list.\n\nParams:\n- tool_name (string, required) — the tool to describe (a name from search_tools or the tool list).",
+      "input_schema": {
+        "properties": {
+          "tool_name": {
+            "description": "Name of the tool to get full help for",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool_name"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__get_upload_status",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nReturns file_uid values for files a user uploaded through the web UI. Action name is get (not get_status). Upload sessions expire 30 minutes after start_attachment_upload; poll within that window.\n\nActions:\n- get: Get uploaded file metadata. Params: task_id (string, required). Returns file_uid values and file metadata. Does not return file content.\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__list_accounts",
+      "description": "List your available Upwork accounts (Freelancer, Client, Agency). Call this first.",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__list_contracts",
+      "description": "View and search your contracts and time reports. ID provenance: use action=search to discover rows; for CLIENT search results use node.contract.id (not node.id) as contract_id. Offer ids for list_offers/get come from list_offers or manage_offers list, not from list_contracts search. See docs/id-chaining.md.\nActions: search, list, get, timesheets, end_reasons.\nCall get_tool_help(tool_name=\"list_contracts\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "search",
+              "list",
+              "get",
+              "timesheets",
+              "end_reasons"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"list_contracts\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__list_freelancer_proposals",
+      "description": "View your freelancer proposals and received invitations. Prior proposals make good drafting examples. Note: the status 'Accepted' means the proposal was submitted and validated (NOT that the client accepted you) — each result includes a status_label with the plain-English meaning. Start with recent submitted (Accepted) proposals; when looking for the strongest templates, also check Offered/Hired examples.\nActions: list, invitations, get, get_room.\nCall get_tool_help(tool_name=\"list_freelancer_proposals\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list",
+              "invitations",
+              "get",
+              "get_room"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"list_freelancer_proposals\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__list_milestones",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nView milestone state for a fixed-price contract. Returns each milestone's state (NotFunded, Active, Submitted, Paid, ...), deposit/funded/paid amounts (both rawValue and displayValue are in dollars), submission count, and — for submitted milestones — the submission deliverables with downloadable links (uploaded_by_role marks FREELANCER vs CLIENT files). Use after list_contracts to check status before submit_milestones, or after the client funds/releases payment on the web.\n\nActions:\n- list: List milestones for a contract. Params: contract_id (string, required — from list_contracts search/get).\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__list_offers",
+      "description": "View and list offers. Use list_mine to see all offers for your org. Use get to fetch full details of a specific offer. The 'id' from these results is the offer_id needed for manage_proposals action=accept_invitation.\nActions: get, get_attachments, list, list_mine.\nCall get_tool_help(tool_name=\"list_offers\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get",
+              "get_attachments",
+              "list",
+              "list_mine"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"list_offers\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__manage_meetings",
+      "description": "Schedule video meetings with the other party in a message room. One side requests a meeting of a set length and the other picks a time from the requester's bookable slots and books it. Times cannot be invented: only the slots free_slots returns can be booked. Recorded meetings have an AI recap and transcript. Get room_id from get_messages (list_rooms or find_room).\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\nActions: list, list_recaps, get_meeting_summary, get_full_transcript, free_slots, request, schedule, reschedule, cancel.\nCall get_tool_help(tool_name=\"manage_meetings\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "list",
+              "list_recaps",
+              "get_meeting_summary",
+              "get_full_transcript",
+              "free_slots",
+              "request",
+              "schedule",
+              "reschedule",
+              "cancel"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"manage_meetings\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__manage_proposals",
+      "description": "Submit, edit, or withdraw freelancer proposals. Submitting can include a Connects boost bid for a top slot on the client's list. Also accept or decline client job invitations. For client offers, use respond_to_offer. Freelancers cannot send the first message on a proposal — see PROPOSAL MESSAGING.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\nActions: create, accept_invitation, start_ai_interview, decline_invitation, withdraw, edit, send_proposal, acknowledge_policy.\nCall get_tool_help(tool_name=\"manage_proposals\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "create",
+              "accept_invitation",
+              "start_ai_interview",
+              "decline_invitation",
+              "withdraw",
+              "edit",
+              "send_proposal",
+              "acknowledge_policy"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"manage_proposals\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__respond_to_offer",
+      "description": "Accept, decline, or request changes to a client offer. Use this tool for all offer responses. 'decline' and 'request_changes' run through MCP (draft -> confirm_preview). 'accept' is legally binding and must be completed by you on Upwork — it returns a link. Use list_offers action=list_mine to find your offers and the offer ID.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\n\nActions:\n- accept: Get the Upwork link to ACCEPT an offer. Accepting is legally binding (it starts the contract) and must be done by the person on Upwork — this returns a finalize_url, it does NOT accept the offer. The offer_id must come from list_offers (action=list_mine or get). Params: offer_id (string, required).\n- decline: Decline an offer from a client (not binding; confirm_preview type='offer_decline'). The offer_id must come from list_offers (action=list_mine or get). Params: offer_id (string, required), reason (string, optional — one of: terms, busy, duplicate, no_response, spam, error, other, requirements), message (string, optional — message to the client).\n- request_changes: Request changes to an offer / counter-offer (NOT binding — the client must approve and send an updated offer; confirm_preview type='offer_request_changes'). Params: offer_id (string, required — the offer to change), description (string, required — the changes you're requesting), hourly_rate (string, required — requested rate, e.g. '55.00'), currency (string, default USD), weekly_limit (number, optional), message (string, optional — note to the client).\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "accept",
+              "decline",
+              "request_changes"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__save_job",
+      "description": "Manage your own marketplace job lists: save (favorite) a job to come back to it, or hide a job to keep it out of your search results. Both lists are private — the client is never notified, and hiding is not feedback about the client or a review of any kind. Hidden jobs are already excluded from future search results by the backend, so no extra filtering is needed in find_jobs. Get job_id from find_jobs (search or get). Browse saved jobs with find_saved_jobs.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- save: Save a job to your saved jobs list. Params: job_id (string, required — job posting ID).\n- unsave: Remove a job from your saved jobs list. Params: job_id (string, required — job posting ID).\n- hide: Hide a job so it stops appearing in your search results, recording why. Params: job_id (string, required — numeric id from find_jobs), reason (string, required — one of: not_interested, vague_description, unrealistic_expectations, too_many_applicants, too_old, poor_client_reviews, doesnt_match_skills, overqualified, too_low_budget, location_mismatch). The client is not notified and cannot see this.\n- unhide: Un-hide a job you previously hid, letting it appear in search results again. Params: job_id (string, required — numeric id from find_jobs).\n- hide_status: Check whether you have hidden a job, and for what reason. Params: job_id (string, required — numeric id from find_jobs).\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "save",
+              "unsave",
+              "hide",
+              "unhide",
+              "hide_status"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__send_message",
+      "description": "Create rooms and send messages. message is max 10240 characters — if the user's text is longer, ask them to shorten it rather than sending it truncated. Each file_attachments item needs file_id and file_name from start_attachment_upload; include image_id when present. Freelancers cannot send the first message on a proposal — see PROPOSAL MESSAGING.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- create_room: Create a group room. Params: input (object, required — RoomCreateInputV2).\n- send: Send a message to a room. Params: room_id (string, required), message (string, required unless file_attachments is set). file_attachments (array, optional).\n- send_to_user: Send a message to a user (auto-creates 1-on-1 room if needed). Starting a conversation with a freelancer you are not yet connected to uses one of a limited number of new connections per day; the response includes remaining_connections. Optionally attach a job via job_posting_id to share it — the recipient gets a link plus a job id their assistant can open with find_jobs get. Params: user_id (string, required), org_id (string, required — recipient's org ID), job_posting_id (string, optional), message (string, required unless file_attachments is set). file_attachments (array, optional).\n- message_proposal: Send a message to a proposal applicant (auto-creates room if needed). Params: job_posting_id (string, required), proposal_id (string, required), message (string, required unless file_attachments is set). file_attachments (array, optional).\n- edit: Edit a sent message. Params: room_id (string, required), story_id (string, required), message (string, required unless file_attachments is set).\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "create_room",
+              "send",
+              "send_to_user",
+              "message_proposal",
+              "edit"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__set_tool_mode",
+      "description": "View or change how MCP tools are presented. full_list shows all tools directly; search_execute uses search_tools/execute_tool indirection.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- get: Get the current tool mode preference. No params required.\n- set: Set the tool mode preference. Params: mode (string, required — 'full_list' or 'search_execute'). Applies to new requests; if tools do not update, reconnect the plugin or restart the AI agent.\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get",
+              "set"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__set_tool_permission",
+      "description": "View or change per-tool write confirmation settings. Write tools default to 'always_ask'. Set 'always_allow' to let an agent run a specific tool without asking for confirmation first — useful for automated flows. This applies in search_execute mode only, and it never bypasses the draft-confirm gate: a destructive write still requires a separate confirm_preview with the preview_id.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- get: Get permission for a tool or all tools. Params: tool_name (string, optional — omit to list all).\n- set: Set permission for a tool. Params: tool_name (string, required), permission (string, required — 'always_ask' or 'always_allow').\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "get",
+              "set"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__start_attachment_upload",
+      "description": "Requests a secure file upload from the user. Creates a short-lived upload session and returns task_id plus fallback_url. For messages uploads with user_id and org_id this may create or reuse a 1:1 room with that person — a connection they can see that consumes the daily new-connection limit — so never guess a recipient. Retention is per context: job, proposals and invitation uploads are retained on upload; fallback messages, offer and milestones uploads are retained only after confirm_attachment_upload. In MCP App-capable hosts, an inline upload UI may appear; otherwise share fallback_url with the user. The inline upload UI supports up to 7 MB per file. The fallback_url page supports up to 100 MB per file and 300 MB total; use it for larger files. Never ask for base64 text or local file paths. Before calling upload, you MUST know the upload context. Ask the user to choose messages, proposals, offer, milestones, job, or invitation when it is not obvious from the conversation. Never guess a context.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\nActions: upload.\nCall get_tool_help(tool_name=\"start_attachment_upload\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "upload"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"start_attachment_upload\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__store_uploaded_files",
+      "description": "App-only tool that persists files uploaded through the inline MCP App UI. The model does not call this tool.",
+      "input_schema": {
+        "properties": {
+          "files": {
+            "items": {
+              "properties": {
+                "data": {
+                  "description": "Base64-encoded file bytes",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "data"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "org_uid": {
+            "description": "Upwork org_uid for the active account",
+            "type": "string"
+          },
+          "task_id": {
+            "description": "Upload session task_id from start_attachment_upload",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "org_uid",
+          "files"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__submit_feedback",
+      "description": "Input constraint: all listed parameters apply together (flattened from a JSON Schema allOf).\n\nSend feedback or bug report. MANDATORY: fill trace_ids first.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nYou MUST present full action details and receive explicit approval before executing.\n\nActions:\n- submit: Send.\n",
+      "input_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "submit"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__submit_milestones",
+      "description": "Submit milestones for client review. Use this to request approval on completed milestone work.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\n\nActions:\n- submit: Submit a milestone for client review/approval. Params: milestone_id (string, required), message (string, required — note to the client), amount (object, optional — { decimal_amount: string, currency: string } to submit a partial amount), attachments (array of strings, optional — file uids to attach as deliverables; upload them first with the 'milestones' upload context).\n",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "submit"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters (see allOf branches per action when present)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "mcp__upwork__upwork__update_profile",
+      "description": "Manage freelancer profile: title, overview, video introduction, availability, employment, skills, languages, education, and other experience.\n\nWRITE OPERATION — REQUIRES EXPLICIT USER CONFIRMATION.\nReturns a preview — call confirm_preview only after explicit user approval.\nActions: update_title, update_overview, set_video, update_availability, set_skills, add_employment, update_employment, remove_employment, add_language, update_language, remove_language, add_education, update_education, remove_education, add_other_experience, update_other_experience, remove_other_experience.\nCall get_tool_help(tool_name=\"update_profile\") for the parameters and how to use this tool.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "description": "The operation to perform",
+            "enum": [
+              "update_title",
+              "update_overview",
+              "set_video",
+              "update_availability",
+              "set_skills",
+              "add_employment",
+              "update_employment",
+              "remove_employment",
+              "add_language",
+              "update_language",
+              "remove_language",
+              "add_education",
+              "update_education",
+              "remove_education",
+              "add_other_experience",
+              "update_other_experience",
+              "remove_other_experience"
+            ],
+            "type": "string"
+          },
+          "org_uid": {
+            "description": "Your Upwork org_uid from list_accounts",
+            "type": "string"
+          },
+          "params": {
+            "description": "Action-specific parameters — call get_tool_help(tool_name=\"update_profile\") for the full field list.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "org_uid"
+        ],
+        "type": "object"
+      }
+    }
+  ]
+}

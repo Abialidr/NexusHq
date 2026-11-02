@@ -1,0 +1,9 @@
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+# worker secrets (DPAPI-encrypted on Windows, but never commit them)
+.secrets
+# per-install config written by the admin's setup wizard (/setup)
+nexushq.config.json

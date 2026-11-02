@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact · 2D design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design.css">
+</head>
+<body data-page="contact">
+<div id="head"></div>
+<main class="wrap">
+  <section class="grid g2" style="gap:48px;padding:72px 0 56px;align-items:start">
+    <div class="stack" style="gap:20px">
+      <span class="kicker">Contact</span>
+      <h1 class="h-page">Let’s build something together.</h1>
+      <p class="lead">Open to freelance and full-time work with teams anywhere. I usually reply within a day.</p>
+      <div class="stack" style="gap:10px;margin-top:8px">
+        <a class="card row" href="#" style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">Email</span><span>[YOUR EMAIL]</span></a>
+        <a class="card row" href="#" style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">LinkedIn</span><span>[LINK]</span></a>
+        <a class="card row" href="#" style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">GitHub</span><span>[LINK]</span></a>
+      </div>
+    </div>
+    <form class="card" style="padding:28px;gap:16px" onsubmit="return false">
+      <h2 class="h-card">Send a message</h2>
+      <div class="grid g2" style="gap:12px"><div class="field"><label for="n">Name</label><input class="input" id="n" placeholder="Your name"></div><div class="field"><label for="e">Email</label><input class="input" id="e" type="email" placeholder="you@company.com"></div></div>
+      <div class="field"><label for="t">What is it about?</label><select class="input" id="t"><option>A freelance project</option><option>A full-time role</option><option>Just saying hi</option></select></div>
+      <div class="field"><label for="m">Message</label><textarea class="input" id="m" placeholder="Tell me a little about it…"></textarea></div>
+      <button class="btn btn-primary" style="align-self:flex-start">Send message</button>
+    </form>
+  </section>
+</main>
+<div id="foot"></div>
+<script src="design.js"></script>
+</body>
+</html>

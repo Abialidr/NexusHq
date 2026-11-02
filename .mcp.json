@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "devsmind": {
+      "type": "stdio",
+      "command": "devsmind",
+      "args": [
+        "start",
+        "--stdio",
+        "--path",
+        "C:\\work 2\\portfolio-manager\\.devsmind"
+      ]
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=wcnqstqxvyualbneeopm&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage"
+    }
+  }
+}

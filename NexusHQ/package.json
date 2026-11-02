@@ -1,0 +1,21 @@
+{
+  "name": "nexushq",
+  "private": true,
+  "workspaces": ["apps/admin", "apps/api", "apps/worker", "packages/*"],
+  "scripts": {
+    "dev": "concurrently -n admin,api,worker -c magenta,cyan,yellow \"npm:dev:admin\" \"npm:dev:api\" \"npm:dev:worker\"",
+    "dev:admin": "npm run dev -w nexushq-admin",
+    "dev:api": "npm run dev -w nexushq-api",
+    "dev:worker": "npm run dev -w nexushq-worker",
+    "worker": "npm run worker -w nexushq-worker --",
+    "build": "npm run build --workspaces --if-present",
+    "start": "concurrently -k -n admin,api -c magenta,cyan \"npm run start -w nexushq-admin\" \"npm run start -w nexushq-api\"",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "10.0.6"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

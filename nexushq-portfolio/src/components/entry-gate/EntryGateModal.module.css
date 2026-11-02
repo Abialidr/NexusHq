@@ -1,0 +1,110 @@
+/* Entry modal: shown over the 2D home page on a first visit; uses the site's design tokens. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg) 40%, rgba(29, 27, 24, 0.55));
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.35s ease both;
+}
+
+.panel {
+  width: 100%;
+  max-width: 480px;
+  padding: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: rise 0.5s var(--ease) 0.05s both;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(24px, 3.4vw, 30px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+.input {
+  min-height: 46px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 15px var(--sans);
+}
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+.errorText { margin: 0; font-size: 13px; color: var(--accent); }
+
+.modeGroup { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.modeButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 15px var(--sans);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.modeButton b { font-weight: 600; }
+.modeButton span { font-size: 13px; color: var(--muted); }
+.modeButton:hover { border-color: var(--text); }
+.modeButtonActive { background: var(--text); border-color: var(--text); color: var(--bg); }
+.modeButtonActive span { color: color-mix(in srgb, var(--bg) 75%, transparent); }
+
+.submitButton {
+  min-height: 48px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--accent);
+  color: #fbf8f2;
+  font: 600 15px var(--sans);
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+.submitButton:hover:not(:disabled) { filter: brightness(1.08); }
+.submitButton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
+
+@media (max-width: 560px) {
+  .panel { padding: 24px; }
+  .modeGroup { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .panel { animation: none; }
+}

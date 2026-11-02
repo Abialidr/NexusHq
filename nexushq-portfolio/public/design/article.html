@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Article · 2D design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design.css">
+</head>
+<body data-page="articles">
+<div id="head"></div>
+<main class="wrap" style="max-width:760px">
+  <header class="page-head">
+    <a class="link small" href="articles.html">← All articles</a>
+    <span class="kicker">[DATE] · 6 min read</span>
+    <h1 class="h-page">[ARTICLE TITLE]</h1>
+    <p class="lead">[The standfirst: one or two lines on what this piece is about.]</p>
+  </header>
+  <div class="figure" style="margin-bottom:40px">Cover image</div>
+  <article class="prose" style="margin-bottom:56px">
+    <p>[Opening paragraph.]</p>
+    <h2>[Section heading]</h2>
+    <p>[Body paragraph.]</p>
+    <pre class="mono" style="background:var(--surface-2);border-radius:12px;padding:16px 18px;overflow:auto;color:var(--text)">const agent = createAgent({ model, tools });</pre>
+    <p>[Body paragraph.]</p>
+    <blockquote>[A pull quote.]</blockquote>
+    <h2>[Section heading]</h2>
+    <p>[Closing paragraph.]</p>
+  </article>
+  <div class="card row between" style="flex-direction:row;margin-bottom:24px"><div class="stack" style="gap:2px"><b>Written by [YOUR NAME]</b><span class="muted small">Full-stack, AI &amp; cloud engineer</span></div><a class="btn btn-ghost" href="contact.html">Get in touch</a></div>
+</main>
+<div id="foot"></div>
+<script src="design.js"></script>
+</body>
+</html>

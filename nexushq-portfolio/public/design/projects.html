@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects · 2D design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design.css">
+</head>
+<body data-page="projects">
+<div id="head"></div>
+<main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Projects</span>
+    <h1 class="h-page">Things I have built</h1>
+    <p class="lead">Products, platforms and AI agents, from first sketch to production.</p>
+    <div class="row" role="group" aria-label="Filter projects">
+      <button class="btn btn-primary" style="min-height:36px;padding:0 16px;font-size:14px">All</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">Web apps</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">AI &amp; agents</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">Cloud &amp; platform</button>
+    </div>
+  </header>
+
+  <a class="card" href="project.html" style="display:grid;grid-template-columns:1.3fr 1fr;gap:32px;padding:28px;margin-bottom:20px;align-items:center">
+    <div class="thumb" style="margin:0;aspect-ratio:16/10">Featured cover</div>
+    <div class="stack" style="gap:14px"><span class="chip accent" style="align-self:flex-start">Featured</span><h2 class="h-sec">[FEATURED PROJECT]</h2><p class="muted">[What it does, who used it and the result. Two or three lines that make someone want to click.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">LangGraph</span><span class="chip">AWS Bedrock</span></div><span class="arrow">Read the case study →</span></div>
+  </a>
+
+  <section class="grid g3" style="margin-bottom:48px">
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Web app · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">React</span><span class="chip">Node.js</span></div></a>
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">AI agent · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Python</span><span class="chip">LoRA</span></div></a>
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Platform · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">NestJS</span><span class="chip">GraphQL</span></div></a>
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Cloud · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">AWS</span><span class="chip">Docker</span></div></a>
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Payments · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Alipay</span><span class="chip">DSL</span></div></a>
+    <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Web app · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">MongoDB</span></div></a>
+  </section>
+</main>
+<div id="foot"></div>
+<script src="design.js"></script>
+<style>@media (max-width: 900px) { a.card[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>
+</body>
+</html>

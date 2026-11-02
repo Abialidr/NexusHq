@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articles · 2D design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design.css">
+</head>
+<body data-page="articles">
+<div id="head"></div>
+<main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Articles</span>
+    <h1 class="h-page">Notes from the work</h1>
+    <p class="lead">Things I have written about building products, AI agents and the cloud.</p>
+  </header>
+  <a class="card" href="article.html" style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin-bottom:40px">
+    <div class="figure" style="aspect-ratio:16/10">Cover image</div>
+    <div class="stack" style="gap:12px"><span class="kicker">Latest · [DATE]</span><h2 class="h-sec">[ARTICLE TITLE]</h2><p class="muted">[A two-line summary of the article.]</p><span class="arrow">Read it →</span></div>
+  </a>
+  <section style="margin-bottom:56px">
+    <a class="list-row" href="article.html"><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">6 min</span></a>
+    <a class="list-row" href="article.html"><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">4 min</span></a>
+    <a class="list-row" href="article.html"><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">9 min</span></a>
+  </section>
+</main>
+<div id="foot"></div>
+<script src="design.js"></script>
+<style>@media (max-width: 900px) { a.card[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>
+</body>
+</html>

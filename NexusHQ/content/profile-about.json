@@ -1,0 +1,45 @@
+{
+  "notes": [
+    "Applied to public.profile at user's request. Profile has no draft status.",
+    "Based on older portfolio; current employment from Nov 2024 onward and total experience not yet added.",
+    "Existing availability, work mode, contact settings, media, statistics and principles preserved."
+  ],
+  "profile": {
+    "name": "Abiali Doctor",
+    "role": "Full-Stack Developer",
+    "headline": "From interface to API, I build web applications.",
+    "intro": "I'm a full-stack developer based in Surat, India. I build web applications with JavaScript and TypeScript, from React and Next.js interfaces to Node.js APIs, databases, and cloud deployments.",
+    "story": [
+      "I'm Abiali, a full-stack developer based in Surat. My work spans responsive websites and applications with connected customer, business, and admin workflows.",
+      "My earlier projects include a wedding marketplace, a reservation platform, employee marketing tools, and a wellness platform. On Wedfield, I worked across the customer site, vendor platform, admin console, and backend, including messaging, payments, invitation tools, and mobile apps built with Capacitor.",
+      "I work with React and Next.js on the frontend and Node.js, Express, and databases on the backend. My experience also includes API integrations, real-time communication, file storage, and AWS deployments. I continue learning through official documentation, courses, and hands-on projects."
+    ],
+    "location": "Surat, India",
+    "email": "abialidctr@gmail.com",
+    "stack": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "PostgreSQL",
+      "AWS"
+    ],
+    "socials": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/Abialidr"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/abiali-doctor/"
+      },
+      {
+        "label": "Upwork",
+        "url": "https://www.upwork.com/freelancers/~0117095824471d455e"
+      }
+    ]
+  }
+}

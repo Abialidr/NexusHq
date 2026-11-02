@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kind words — design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    /* Public testimonial collection page (what a client sees from a request link). */
+    body { display: flex; justify-content: center; padding: 40px 16px 60px; background: radial-gradient(circle at 20% 0%, var(--accent-soft), transparent 50%), var(--bg); }
+    .wrap { width: min(620px, 100%); display: flex; flex-direction: column; gap: 22px; }
+    .hello { display: flex; gap: 14px; align-items: center; }
+    .hello .avatar { width: 52px; height: 52px; font-size: 18px; }
+    .hello h1 { font-size: clamp(26px, 5vw, 34px); }
+    .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mode { padding: 16px 12px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; transition: .15s; }
+    .mode svg { width: 26px; height: 26px; color: var(--muted); }
+    .mode b { font: 700 15px var(--display); }
+    .mode small { color: var(--faint); font-size: 12px; }
+    .mode[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .mode[aria-pressed="true"] svg { color: var(--accent); }
+    .pane { display: none; flex-direction: column; gap: 14px; }
+    .pane.on { display: flex; }
+    .rec { aspect-ratio: 16/10; border-radius: var(--radius); background: linear-gradient(160deg, #2a2420, #3f5a46); position: relative; display: grid; place-items: center; color: #f1ece4; overflow: hidden; }
+    .rec .frame { position: absolute; inset: 14px; border: 1px dashed rgba(255,255,255,.25); border-radius: 12px; }
+    .rec .tip { position: absolute; top: 24px; left: 24px; right: 24px; font-size: 13px; opacity: .8; }
+    .rec-btn { width: 68px; height: 68px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); display: grid; place-items: center; }
+    .rec-btn i { width: 44px; height: 44px; border-radius: 50%; background: #e05a47; transition: .2s; }
+    .rec.live .rec-btn i { width: 24px; height: 24px; border-radius: 6px; }
+    .rec .timer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font: 600 13px var(--mono); background: rgba(0,0,0,.45); padding: 3px 10px; border-radius: 999px; }
+    .rec.live .timer::before { content: "● "; color: #e05a47; }
+    .mic-stage { padding: 28px 20px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .mic-stage .wave { width: 100%; height: 56px; }
+    .big-mic { width: 76px; height: 76px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 0 0 10px var(--accent-soft); }
+    .big-mic svg { width: 30px; height: 30px; }
+    .prompts { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 13px; }
+    .prompts b { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+    .rate { display: flex; gap: 4px; font-size: 26px; color: var(--oak); }
+    .rate button { color: inherit; line-height: 1; }
+    .done { text-align: center; padding: 36px 20px; display: none; }
+    .done .ic { width: 60px; height: 60px; border-radius: 50%; background: var(--sage-soft); color: var(--sage); display: grid; place-items: center; margin: 0 auto 14px; }
+    .foot-note { text-align: center; font-size: 12px; color: var(--faint); }
+    @media (max-width: 520px) { .modes { grid-template-columns: 1fr; } .mode { flex-direction: row; text-align: left; } .mode small { margin-left: auto; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hello">
+    <div class="avatar">AA</div>
+    <div><div class="kicker">Kind words for Abiali</div><h1>Hi Sara — how was it working together?</h1></div>
+  </div>
+  <p class="muted">Thanks for taking a minute. Pick whatever is easiest: a quick video, a voice note, or a few typed lines. You can review it before sending.</p>
+
+  <div class="card card-pad" id="flow" style="display:flex;flex-direction:column;gap:18px">
+    <div class="modes" role="group" aria-label="Testimonial format">
+      <button class="mode" data-mode="video" aria-pressed="true"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3z"/></svg><b>Video</b><small>up to 2 min</small></button>
+      <button class="mode" data-mode="audio" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><b>Voice note</b><small>up to 2 min</small></button>
+      <button class="mode" data-mode="text" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><b>Write</b><small>a few lines</small></button>
+    </div>
+
+    <div class="prompts"><b>Need a nudge?</b><span>• What problem were you trying to solve?</span><span>• What was it like working together?</span><span>• What changed afterwards?</span></div>
+
+    <div class="pane on" data-pane="video">
+      <div class="rec" id="rec"><div class="frame"></div><span class="tip">Camera preview · find good light and look at the lens</span><button class="rec-btn" aria-label="Start recording"><i></i></button><span class="timer">0:00 / 2:00</span></div>
+      <div class="row-flex" style="justify-content:center;gap:8px"><button class="btn sm ghost">Switch camera</button><button class="btn sm ghost">Upload a video instead</button></div>
+    </div>
+    <div class="pane" data-pane="audio">
+      <div class="mic-stage"><button class="big-mic" aria-label="Start recording"><svg class="i" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><div class="wave" id="wave"></div><span class="mono faint">Tap to record · 0:00</span></div>
+      <button class="btn sm ghost" style="align-self:center">Upload an audio file instead</button>
+    </div>
+    <div class="pane" data-pane="text">
+      <div class="field"><label for="tx">Your testimonial</label><textarea id="tx" style="min-height:150px" placeholder="Working with Abiali was…"></textarea><span class="hint">2–5 sentences is perfect.</span></div>
+    </div>
+
+    <div class="fields">
+      <div class="field"><label>Your name</label><input value="Sara Khan"></div>
+      <div class="field"><label>Role & company</label><input value="Founder, Brightside Studio"></div>
+      <div class="field full"><label>Rating</label><div class="rate" role="radiogroup" aria-label="Rating"><button>★</button><button>★</button><button>★</button><button>★</button><button>★</button></div></div>
+      <div class="field full"><label>Photo (optional)</label><div class="drop" style="padding:14px"><b>Add a headshot</b><span class="faint">or we'll use your initials</span></div></div>
+      <div class="field full"><label class="toggle"><input type="checkbox" checked> Abiali may show this on his website with my name</label></div>
+    </div>
+    <button class="btn primary" id="send" style="align-self:stretch;justify-content:center;padding:12px">Send testimonial</button>
+  </div>
+
+  <div class="card done" id="done"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div><h2 style="font-size:24px">Thank you, Sara!</h2><p class="muted" style="margin-top:6px">Your words are on their way. Abiali will review them before anything goes live.</p></div>
+  <p class="foot-note">Design preview · nothing is recorded or sent from this page.</p>
+</div>
+<script>
+  document.querySelectorAll('.mode').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.mode').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    document.querySelectorAll('.pane').forEach((p) => p.classList.toggle('on', p.dataset.pane === b.dataset.mode));
+  }));
+  const rec = document.getElementById('rec');
+  rec.querySelector('.rec-btn').addEventListener('click', () => { rec.classList.toggle('live'); rec.querySelector('.timer').textContent = rec.classList.contains('live') ? '0:07 / 2:00' : '0:00 / 2:00'; });
+  let w = ''; for (let i = 0; i < 60; i++) w += `<i style="height:${15 + Math.abs(Math.sin(i * .6) * 70) + (i * 13) % 15}%"></i>`;
+  document.getElementById('wave').innerHTML = w;
+  const stars = [...document.querySelectorAll('.rate button')];
+  stars.forEach((s, i) => s.addEventListener('click', () => stars.forEach((x, j) => (x.textContent = j <= i ? '★' : '☆'))));
+  document.getElementById('send').addEventListener('click', () => { document.getElementById('flow').style.display = 'none'; document.getElementById('done').style.display = 'block'; });
+</script>
+</body>
+</html>

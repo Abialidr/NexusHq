@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2D Design Canvas</title>
+<!-- Generated from the page mockups in this folder (home.html, about.html, …): one self-contained canvas of every 2D page. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ---------- canvas chrome ---------- */
+:root { --c-bg: #1f1d1b; --c-panel: #2a2724; --c-line: rgba(255,255,255,.08); --c-text: #ece6dc; --c-muted: #9b9184; --c-hi: #e0916a; color-scheme: dark; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--c-bg); color: var(--c-text); font: 13px/1.4 'Instrument Sans', system-ui, sans-serif; }
+.topbar { position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 30; display: flex; align-items: center; gap: 12px; padding: 0 12px 0 16px; background: var(--c-panel); border-bottom: 1px solid var(--c-line); }
+.topbar .title { display: flex; flex-direction: column; line-height: 1.15; margin-right: auto; min-width: 0; }
+.topbar .title b { font: 800 15px 'Bricolage Grotesque', sans-serif; letter-spacing: -.01em; white-space: nowrap; }
+.topbar .title span { color: var(--c-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-group { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.tb-btn { min-width: 32px; height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--c-text); font: 500 13px 'Instrument Sans', sans-serif; cursor: pointer; display: grid; place-items: center; }
+.tb-btn:hover { background: rgba(255,255,255,.08); }
+.tb-btn[aria-pressed="true"] { background: #ece6dc; color: #1f1d1b; }
+.zoom-val { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; color: var(--c-muted); }
+.layers { position: fixed; top: 52px; left: 0; bottom: 0; width: 240px; z-index: 20; background: var(--c-panel); border-right: 1px solid var(--c-line); padding: 14px 8px; overflow: auto; }
+.layers h2 { font: 600 11px 'Instrument Sans', sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted); padding: 0 10px 10px; }
+.layer { width: 100%; display: grid; grid-template-columns: 16px 1fr; column-gap: 8px; align-items: center; text-align: left; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--c-text); font: inherit; cursor: pointer; }
+.layer svg { color: var(--c-muted); }
+.layer em { grid-column: 2; font: 11px 'JetBrains Mono', monospace; font-style: normal; color: var(--c-muted); }
+.layer:hover, .layer.active { background: rgba(255,255,255,.07); }
+.layer.active svg { color: var(--c-hi); }
+.layers .hint { margin-top: 16px; padding: 12px 10px; border-top: 1px solid var(--c-line); color: var(--c-muted); font-size: 12px; line-height: 1.6; }
+.layers kbd { font: 11px 'JetBrains Mono', monospace; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.08); color: var(--c-text); }
+.viewport { position: fixed; top: 52px; left: 240px; right: 0; bottom: 0; overflow: hidden; cursor: grab; touch-action: none;
+  background-color: var(--c-bg); background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size: 24px 24px; }
+.viewport.panning { cursor: grabbing; }
+.world { position: absolute; top: 0; left: 0; transform-origin: 0 0; display: grid; grid-template-columns: repeat(3, 1440px); gap: 220px 160px; align-items: start; padding: 120px; }
+.board { display: flex; flex-direction: column; gap: 14px; }
+.board-label { display: flex; align-items: baseline; gap: 14px; font-size: 22px; color: var(--c-muted); }
+.board-label b { color: var(--c-text); font-weight: 600; }
+.board-label a { margin-left: auto; color: var(--c-hi); text-decoration: none; font-size: 20px; }
+.board-label a:hover { text-decoration: underline; }
+.board.active .artboard { outline: 4px solid var(--c-hi); outline-offset: 6px; }
+.artboard { width: 1440px; border-radius: 4px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); user-select: none; }
+.artboard * { pointer-events: none; }
+@media (max-width: 760px) { .layers { display: none; } .viewport { left: 0; } .topbar .title span { display: none; } .hide-sm { display: none; } }
+
+/* ---------- artboard styles (generated from design.css, scoped to .artboard) ---------- */
+.artboard *, .artboard *::before, .artboard *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* 2D portfolio design mockups — shared tokens and components.
+   Palette taken from the 3D café: cream plaster, oak, walnut, sage wall, terracotta accents. */
+.artboard {
+  --bg: #f3f0ea;
+  --surface: #ffffff;
+  --surface-2: #ebe5da;
+  --text: #1d1b18;
+  --muted: #5b544b;
+  --faint: #8a8174;
+  --border: rgba(29, 27, 24, .12);
+  --border-strong: rgba(29, 27, 24, .24);
+  --accent: #9a4f30;        /* terracotta: links, primary buttons */
+  --accent-soft: #f1e2d8;
+  --sage: #6f8a73;          /* the café's back wall */
+  --sage-soft: #e3eae2;
+  --band: #6f8a73;          /* the sage call-to-action band; stays dark enough for cream text */
+  --oak: #c9a27a;
+  --walnut: #7d5236;
+  --label: #7a3fa8;         /* the café's panel kickers, used sparingly */
+  --shadow: 0 1px 2px rgba(29, 27, 24, .05), 0 8px 24px rgba(29, 27, 24, .07);
+  --shadow-lg: 0 30px 80px rgba(29, 27, 24, .16);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --max: 1120px;
+  color-scheme: light;
+}
+
+.artboard.dark {
+  --bg: #171513; --surface: #211e1b; --surface-2: #2a2622;
+  --text: #f1ece4; --muted: #b9af9f; --faint: #8a8174;
+  --border: rgba(241, 236, 228, .1); --border-strong: rgba(241, 236, 228, .22);
+  --accent: #e0916a; --accent-soft: #3a2a21; --sage: #93b297; --sage-soft: #233027; --band: #3f5a46;
+  --oak: #c9a27a; --walnut: #b8875f; --label: #c49be6;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); --shadow-lg: 0 30px 80px rgba(0, 0, 0, .45);
+  color-scheme: dark;
+}
+
+
+
+.artboard { background: var(--bg); color: var(--text); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; transition: background .25s, color .25s; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--accent-soft); color: var(--text); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+
+/* type */
+h1, h2, h3, h4, .h-hero, .h-page, .h-sec, .h-card { font-family: var(--display); font-weight: 800; letter-spacing: -.02em; line-height: 1.08; }
+.h-hero { font-size: clamp(40px, 7vw, 76px); }
+.h-page { font-size: clamp(34px, 5vw, 52px); }
+.h-sec { font-size: clamp(24px, 3vw, 30px); }
+.h-card { font-size: 20px; letter-spacing: -.01em; line-height: 1.2; }
+.kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--label); }
+.lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 640px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.link { color: var(--accent); border-bottom: 1px solid transparent; transition: border-color .15s; }
+.link:hover { border-color: currentColor; }
+
+/* header */
+.site-head { position: relative; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.site-head .wrap { display: flex; align-items: center; gap: 24px; height: 68px; }
+.brand { display: flex; flex-direction: column; line-height: 1.1; }
+.brand b { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+.brand span { font-size: 12px; color: var(--muted); }
+.nav { display: flex; gap: 4px; margin-left: auto; }
+.nav a { padding: 8px 12px; border-radius: 10px; font-size: 14px; color: var(--muted); transition: background .15s, color .15s; }
+.nav a:hover { background: var(--surface-2); color: var(--text); }
+.nav a[aria-current="page"] { color: var(--text); background: var(--surface); box-shadow: var(--shadow); }
+.head-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn { width: 40px; height: 40px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: grid; place-items: center; cursor: pointer; transition: border-color .15s; }
+.icon-btn:hover { border-color: var(--border-strong); }
+.menu-btn { display: none; }
+
+
+/* buttons, chips */
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 22px; font: 600 15px var(--sans); border: 1px solid transparent; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--text); color: var(--bg); }
+.btn-primary:hover { background: var(--accent); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
+.btn-ghost:hover { border-color: var(--text); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 13px; background: var(--surface-2); color: var(--muted); }
+.chip.sage { background: var(--sage-soft); color: var(--sage); }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sage); box-shadow: 0 0 0 4px var(--sage-soft); }
+
+/* layout pieces */
+.section { padding: 72px 0; }
+.section + .section { border-top: 1px solid var(--border); }
+.page-head { padding: 72px 0 40px; display: flex; flex-direction: column; gap: 16px; }
+.grid { display: grid; gap: 20px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+
+/* cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; transition: transform .2s, box-shadow .2s, border-color .2s; }
+a.card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+.card .thumb { aspect-ratio: 16 / 10; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--sage-soft), var(--accent-soft)); display: grid; place-items: center; color: var(--faint); font: 600 13px var(--sans); letter-spacing: .08em; text-transform: uppercase; margin: -8px -8px 4px; }
+.card .meta { font-size: 13px; color: var(--faint); }
+.arrow { color: var(--accent); font-weight: 600; font-size: 14px; margin-top: auto; }
+
+/* timeline (experience) */
+.timeline { display: flex; flex-direction: column; }
+.tl-item { display: grid; grid-template-columns: 180px 1fr; gap: 32px; padding: 32px 0; border-top: 1px solid var(--border); }
+.tl-item:last-child { border-bottom: 1px solid var(--border); }
+.tl-when { font-size: 14px; color: var(--muted); padding-top: 4px; }
+.tl-logo { width: 48px; height: 48px; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; font: 800 18px var(--display); color: var(--walnut); }
+.tl-body { display: flex; flex-direction: column; gap: 10px; }
+.tl-body ul { padding-left: 18px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+
+
+/* list rows (articles, open source) */
+.list-row { display: grid; grid-template-columns: 120px 1fr auto; gap: 24px; align-items: baseline; padding: 24px 0; border-top: 1px solid var(--border); transition: background .15s; }
+.list-row:last-child { border-bottom: 1px solid var(--border); }
+a.list-row:hover .h-card { color: var(--accent); }
+
+
+/* skill board */
+.skill-group { display: flex; flex-direction: column; gap: 14px; }
+.skill-group h3 { font-size: 15px; font-family: var(--sans); font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.skill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; font-weight: 500; }
+.skill i { width: 18px; height: 18px; border-radius: 5px; background: var(--surface-2); }
+
+/* prose (project, article detail) */
+.prose { max-width: 680px; display: flex; flex-direction: column; gap: 18px; font-size: 17px; }
+.prose h2 { font-size: 26px; margin-top: 16px; }
+.prose p, .prose li { color: var(--muted); }
+.prose ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.prose blockquote { border-left: 3px solid var(--sage); padding: 4px 0 4px 20px; font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--text); }
+.figure { border-radius: var(--radius); background: linear-gradient(135deg, var(--sage-soft), var(--accent-soft)); aspect-ratio: 16 / 9; display: grid; place-items: center; color: var(--faint); font: 600 13px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.facts div { background: var(--surface); padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+.facts span { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+
+
+/* forms */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.input { width: 100%; min-height: 46px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: 15px var(--sans); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+textarea.input { min-height: 140px; resize: vertical; }
+
+/* hero */
+.hero { padding: 96px 0 72px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; }
+.hero-card { position: relative; aspect-ratio: 4 / 5; border-radius: 28px; background: linear-gradient(160deg, var(--oak), var(--walnut)); box-shadow: var(--shadow-lg); overflow: hidden; display: grid; place-items: center; color: rgba(255, 255, 255, .7); font: 600 13px var(--sans); letter-spacing: .1em; text-transform: uppercase; }
+.hero-card .badge { position: absolute; left: 16px; bottom: 16px; right: 16px; background: var(--surface); color: var(--text); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; text-transform: none; letter-spacing: 0; font: 500 14px var(--sans); box-shadow: var(--shadow); }
+
+
+/* callout band */
+.band { border-radius: 28px; background: var(--band); color: #fbf8f2; padding: 48px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; }
+.band h2 { font-size: clamp(26px, 3.4vw, 36px); max-width: 560px; }
+.band .btn-primary { background: #fbf8f2; color: #1d1b18; }
+.band .btn-primary:hover { background: #1d1b18; color: #fbf8f2; }
+
+
+/* footer */
+.site-foot { margin-top: 48px; border-top: 1px solid var(--border); padding: 40px 0 56px; }
+.site-foot .wrap { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; }
+
+/* ---------- motion: light, purposeful, and off for reduced-motion users ---------- */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; animation-timing-function: ease; }
+:root { --ease: cubic-bezier(.2, .7, .2, 1); }
+
+/* scroll reveal: design.js tags elements with data-reveal and adds .in when they enter view.
+   Hidden only under .motion (set by design.js), so content stays visible without JS. */
+.motion [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
+.motion [data-reveal].in { opacity: 1; transform: none; }
+
+/* hero headline, word by word */
+.motion .hw { display: inline-block; opacity: 0; transform: translateY(.4em); animation: word-in .7s var(--ease) forwards; animation-delay: calc(120ms + var(--w) * 55ms); }
+@keyframes word-in { to { opacity: 1; transform: none; } }
+/* the rest of the hero follows the headline in */
+.motion .hero > .stack > :not([data-words]), .motion .hero > .hero-card { animation: fade-up .8s var(--ease) both; }
+.motion .hero > .stack > :nth-child(1) { animation-delay: .05s; }
+.motion .hero > .stack > :nth-child(3) { animation-delay: .75s; }
+.motion .hero > .stack > :nth-child(4) { animation-delay: .9s; }
+.motion .hero > .stack > :nth-child(n+5) { animation-delay: 1s; }
+.motion .hero > .hero-card { animation-duration: 1.1s; animation-delay: .3s; }
+@keyframes fade-up { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+
+/* live status dot */
+.dot { position: relative; }
+.dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--sage); animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: .6; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+
+/* hover polish */
+.nav a { position: relative; }
+.nav a::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 5px; height: 1.5px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .25s var(--ease); }
+.nav a:hover::after { transform: scaleX(1); }
+.nav a[aria-current="page"]::after { display: none; }
+.card .thumb, .card .figure { transition: transform .6s var(--ease); }
+.card { overflow: hidden; }
+a.card:hover .thumb, a.card:hover .figure { transform: scale(1.035); }
+.arrow { display: inline-block; transition: transform .25s var(--ease); }
+a:hover .arrow, a.card:hover .arrow { transform: translateX(5px); }
+.btn-primary .arr { display: inline-block; transition: transform .25s var(--ease); }
+.btn-primary:hover .arr { transform: translateX(4px); }
+.skill { transition: transform .2s var(--ease), border-color .2s; }
+.skill:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+
+/* portrait card follows the cursor a little (design.js sets --rx / --ry) */
+.hero-card { transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s var(--ease); will-change: transform; }
+.hero-card .shine { position: absolute; inset: 0; background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, .22), transparent 55%); pointer-events: none; }
+
+/* tech stack marquee */
+.marquee { overflow: hidden; border-block: 1px solid var(--border); padding: 18px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee-track { display: flex; gap: 48px; width: max-content; animation: marquee 38s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track span { font: 700 22px var(--display); letter-spacing: -.01em; color: var(--faint); white-space: nowrap; display: inline-flex; align-items: center; gap: 48px; }
+.marquee-track span::after { content: '✦'; font-size: 12px; color: var(--oak); }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* steam rising off the coffee banner */
+.band { position: relative; overflow: hidden; isolation: isolate; }
+.steam { position: absolute; right: 14%; bottom: -30px; width: 160px; height: 100%; z-index: -1; pointer-events: none; }
+.steam i { position: absolute; bottom: 0; width: 46px; height: 120px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255, 255, 255, .28), transparent 70%); filter: blur(6px); animation: steam 5.5s ease-in infinite; opacity: 0; }
+.steam i:nth-child(1) { left: 20px; animation-delay: 0s; }
+.steam i:nth-child(2) { left: 64px; animation-delay: 1.8s; }
+.steam i:nth-child(3) { left: 104px; animation-delay: 3.6s; }
+@keyframes steam { 0% { transform: translateY(0) scaleX(.8); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-170px) scaleX(1.5) rotate(8deg); opacity: 0; } }
+
+/* "step into the 3D café" preview */
+.cafe-card { display: grid; grid-template-columns: 1.15fr 1fr; gap: 0; padding: 0; overflow: hidden; }
+.cafe-shot { position: relative; min-height: 320px; overflow: hidden; background: #2a2622; }
+.cafe-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: kenburns 18s ease-in-out infinite alternate; }
+@keyframes kenburns { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.16) translate(-3%, -2%); } }
+.cafe-shot .live { position: absolute; left: 16px; top: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(29, 27, 24, .72); color: #f3f0ea; font-size: 12px; font-weight: 600; backdrop-filter: blur(6px); }
+.cafe-body { padding: 36px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+
+
+/* stats with count-up numbers */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 8px 0 56px; }
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat b { font: 800 clamp(34px, 4vw, 48px)/1 var(--display); letter-spacing: -.03em; }
+.stat span { font-size: 14px; color: var(--muted); }
+
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .motion [data-reveal], .motion .hw { opacity: 1; transform: none; }
+  .hero-card { transform: none; }
+}
+
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="title"><b>coffee &amp; code · 2D website</b><span>Design canvas · 10 pages · desktop 1440</span></div>
+  <div class="tb-group" role="group" aria-label="Theme">
+    <button class="tb-btn" id="th-light" aria-pressed="true">Light</button>
+    <button class="tb-btn" id="th-dark" aria-pressed="false">Dark</button>
+  </div>
+  <div class="tb-group" role="group" aria-label="Zoom">
+    <button class="tb-btn" id="z-out" aria-label="Zoom out">−</button>
+    <span class="zoom-val" id="z-val">100%</span>
+    <button class="tb-btn" id="z-in" aria-label="Zoom in">+</button>
+    <button class="tb-btn hide-sm" id="z-fit">Fit all</button>
+    <button class="tb-btn hide-sm" id="z-100">100%</button>
+  </div>
+</header>
+<aside class="layers" aria-label="Pages">
+  <h2>Pages</h2>
+  <button class="layer" data-target="b-home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Home</span><em>/2d</em></button><button class="layer" data-target="b-about"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>About</span><em>/2d/about</em></button><button class="layer" data-target="b-experience"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Experience</span><em>/2d/experience</em></button><button class="layer" data-target="b-projects"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Projects</span><em>/2d/projects</em></button><button class="layer" data-target="b-project"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Project detail</span><em>/2d/projects/[slug]</em></button><button class="layer" data-target="b-skills"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Skills</span><em>/2d/skills</em></button><button class="layer" data-target="b-open-source"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Open source</span><em>/2d/open-source</em></button><button class="layer" data-target="b-articles"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Articles</span><em>/2d/articles</em></button><button class="layer" data-target="b-article"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Article detail</span><em>/2d/articles/[slug]</em></button><button class="layer" data-target="b-contact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span>Contact</span><em>/2d/contact</em></button>
+  <p class="hint">Drag to pan · scroll to pan<br><kbd>Ctrl</kbd> + scroll to zoom<br><kbd>0</kbd> fit all · <kbd>1</kbd> 100% · <kbd>D</kbd> dark</p>
+</aside>
+<main class="viewport" id="vp" aria-label="Design canvas">
+  <div class="world" id="world">
+<section class="board" id="b-home" data-name="Home"><div class="board-label"><b>Home</b><span>/2d · 1440</span><a href="home.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a aria-current="page">Home</a><a>About</a><a>Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main>
+<div class="wrap">
+  <section class="hero">
+    <div class="stack" style="gap:24px">
+      <div class="row"><span class="chip sage"><i class="dot"></i>Open to freelance &amp; full-time work</span></div>
+      <h1 class="h-hero" data-words>Hey, I am [YOUR NAME].<br>I build products, AI agents and the cloud they run on.</h1>
+      <p class="lead">[Two lines on who you are and what you love building.] Based in India, working with teams worldwide.</p>
+      <div class="row"><a class="btn btn-primary" >See my work <span class="arr">→</span></a><a class="btn btn-ghost" >Get in touch</a></div>
+    </div>
+    <div class="hero-card">[ Portrait ]<div class="badge"><i class="dot"></i><span>Currently brewing <b>[CURRENT PROJECT]</b></span></div></div>
+  </section>
+
+  <section class="stats" aria-label="At a glance">
+    <div class="stat"><b data-count="6" data-suffix="+">6+</b><span>years building software</span></div>
+    <div class="stat"><b data-count="30" data-suffix="+">30+</b><span>projects shipped</span></div>
+    <div class="stat"><b data-count="12">12</b><span>AI agents in production</span></div>
+    <div class="stat"><b data-count="40" data-suffix="%">40%</b><span>[best cost or latency win]</span></div>
+  </section>
+</div>
+
+<div class="marquee" aria-label="Tech I work with">
+  <div class="marquee-track">
+    <span>Node.js</span><span>NestJS</span><span>Next.js</span><span>React</span><span>TypeScript</span><span>PostgreSQL</span><span>MongoDB</span><span>Python</span><span>LangGraph</span><span>LangChain</span><span>AWS</span><span>Docker</span><span>GraphQL</span>
+    <span aria-hidden="true">Node.js</span><span aria-hidden="true">NestJS</span><span aria-hidden="true">Next.js</span><span aria-hidden="true">React</span><span aria-hidden="true">TypeScript</span><span aria-hidden="true">PostgreSQL</span><span aria-hidden="true">MongoDB</span><span aria-hidden="true">Python</span><span aria-hidden="true">LangGraph</span><span aria-hidden="true">LangChain</span><span aria-hidden="true">AWS</span><span aria-hidden="true">Docker</span><span aria-hidden="true">GraphQL</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="section">
+    <div class="row between" style="margin-bottom:28px"><h2 class="h-sec">Selected projects</h2><a class="link" >All projects →</a></div>
+    <div class="grid g3">
+      <a class="card" ><div class="thumb">Cover</div><span class="kicker">Web app</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">PostgreSQL</span></div></a>
+      <a class="card" ><div class="thumb">Cover</div><span class="kicker">AI agent</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">LangGraph</span><span class="chip">AWS</span></div></a>
+      <a class="card" ><div class="thumb">Cover</div><span class="kicker">Platform</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">NestJS</span><span class="chip">GraphQL</span></div></a>
+    </div>
+  </section>
+
+  <section class="section grid g2" style="gap:48px">
+    <div class="stack" style="gap:20px">
+      <div class="row between"><h2 class="h-sec">Experience</h2><a class="link" >Full history →</a></div>
+      <div class="timeline">
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — now</span><b>[ROLE] · [COMPANY]</b></div>
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — [YEAR]</span><b>[ROLE] · [COMPANY]</b></div>
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — [YEAR]</span><b>[ROLE] · [COMPANY]</b></div>
+      </div>
+    </div>
+    <div class="stack" style="gap:20px">
+      <div class="row between"><h2 class="h-sec">What I work with</h2><a class="link" >All skills →</a></div>
+      <div class="skill-list"><span class="skill"><i></i>Node.js</span><span class="skill"><i></i>NestJS</span><span class="skill"><i></i>Next.js</span><span class="skill"><i></i>TypeScript</span><span class="skill"><i></i>PostgreSQL</span><span class="skill"><i></i>Python</span><span class="skill"><i></i>LangGraph</span><span class="skill"><i></i>AWS</span><span class="skill"><i></i>Docker</span></div>
+      <div class="card" style="margin-top:8px"><span class="kicker">Latest article</span><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[DATE] · 6 min read</p><a class="arrow" >Read it →</a></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <a class="card cafe-card" >
+      <div class="cafe-shot"><img src="cafe-preview.jpg" alt="The 3D coffee &amp; code café: the owner coding at the counter"><span class="live"><i class="dot"></i>Live 3D</span></div>
+      <div class="cafe-body"><span class="kicker">The 3D version</span><h2 class="h-sec">Step into the café</h2><p class="muted">The same portfolio as a little 3D coffee shop. Click the menu board for skills, the bookshelf for projects, or say hi to the barista.</p><span class="arrow">Walk in →</span></div>
+    </a>
+  </section>
+
+  <section class="section"><div class="band"><div class="steam" aria-hidden="true"><i></i><i></i><i></i></div><h2>Have a project in mind? Let’s talk over a coffee.</h2><a class="btn btn-primary" >Start a conversation <span class="arr">→</span></a></div></section>
+</div>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-about" data-name="About"><div class="board-label"><b>About</b><span>/2d/about · 1440</span><a href="about.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a aria-current="page">About</a><a>Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <section class="hero" style="padding-top:72px">
+    <div class="stack" style="gap:20px">
+      <span class="kicker">About me</span>
+      <h1 class="h-page">Hey, I am [YOUR NAME].</h1>
+      <p class="lead">[Two or three lines on who you are, what drives you and the kind of problems you love.]</p>
+      <div class="facts" style="grid-template-columns:repeat(3,1fr);margin-top:8px">
+        <div><span>Based in</span><b>India</b></div>
+        <div><span>Works</span><b>Remote, worldwide</b></div>
+        <div><span>Now</span><b>[CURRENT PROJECT]</b></div>
+      </div>
+    </div>
+    <div class="hero-card">[ Portrait ]</div>
+  </section>
+
+  <section class="section">
+    <div class="prose" style="max-width:760px">
+      <h2 style="margin-top:0">My story</h2>
+      <p>[A short paragraph: how you got into building software.]</p>
+      <p>[A short paragraph: what you do now — full-stack products, AI agents and the cloud they run on.]</p>
+      <p>[A short paragraph: what you are looking for next.]</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="h-sec" style="margin-bottom:8px">Off the clock</h2>
+    <p class="muted" style="margin-bottom:24px">What I do when I am not shipping.</p>
+    <div class="grid g3">
+      <div class="card"><span class="chip sage" style="align-self:flex-start">Hobby</span><h3 class="h-card">[HOBBY]</h3><p class="muted small">[One line about it.]</p></div>
+      <div class="card"><span class="chip sage" style="align-self:flex-start">Hobby</span><h3 class="h-card">[HOBBY]</h3><p class="muted small">[One line about it.]</p></div>
+      <div class="card"><span class="chip sage" style="align-self:flex-start">Hobby</span><h3 class="h-card">[HOBBY]</h3><p class="muted small">[One line about it.]</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="h-sec" style="margin-bottom:24px">Snapshots</h2>
+    <div class="grid g3">
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 1</div><figcaption class="small muted">[Caption]</figcaption></figure>
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 2</div><figcaption class="small muted">[Caption]</figcaption></figure>
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 3</div><figcaption class="small muted">[Caption]</figcaption></figure>
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 4</div><figcaption class="small muted">[Caption]</figcaption></figure>
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 5</div><figcaption class="small muted">[Caption]</figcaption></figure>
+      <figure class="stack" style="gap:8px"><div class="figure" style="aspect-ratio:4/3">Photo 6</div><figcaption class="small muted">[Caption]</figcaption></figure>
+    </div>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-experience" data-name="Experience"><div class="board-label"><b>Experience</b><span>/2d/experience · 1440</span><a href="experience.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a aria-current="page">Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Experience</span>
+    <h1 class="h-page">Where I have worked</h1>
+    <p class="lead">Every team I shipped with, newest first. [One line on the kind of work you do best.]</p>
+    <div class="row"><a class="btn btn-ghost" >Download résumé (PDF)</a></div>
+  </header>
+
+  <section class="timeline" style="margin-bottom:48px">
+    <article class="tl-item">
+      <div class="stack" style="gap:10px"><div class="tl-logo">A</div><span class="tl-when">[MON YEAR] — Present<br>[CITY] · Remote</span></div>
+      <div class="tl-body">
+        <div class="row between"><h2 class="h-card" style="font-size:24px">[ROLE]</h2><span class="chip sage">Full-time</span></div>
+        <b class="muted">[COMPANY]</b>
+        <p class="muted">[Two-line summary of the team, the product and your remit.]</p>
+        <ul><li>[Shipped X, which led to measurable result Y.]</li><li>[Led / designed Z for N users.]</li><li>[Cut cost or latency by N%.]</li></ul>
+        <div class="row"><span class="chip">NestJS</span><span class="chip">PostgreSQL</span><span class="chip">AWS</span></div>
+      </div>
+    </article>
+    <article class="tl-item">
+      <div class="stack" style="gap:10px"><div class="tl-logo">B</div><span class="tl-when">[MON YEAR] — [MON YEAR]<br>[CITY]</span></div>
+      <div class="tl-body">
+        <div class="row between"><h2 class="h-card" style="font-size:24px">[ROLE]</h2><span class="chip">Contract</span></div>
+        <b class="muted">[COMPANY]</b>
+        <p class="muted">[Two-line summary of the team, the product and your remit.]</p>
+        <ul><li>[Shipped X, which led to measurable result Y.]</li><li>[Built the payments flow on the Alipay framework.]</li></ul>
+        <div class="row"><span class="chip">Next.js</span><span class="chip">GraphQL</span></div>
+      </div>
+    </article>
+    <article class="tl-item">
+      <div class="stack" style="gap:10px"><div class="tl-logo">C</div><span class="tl-when">[MON YEAR] — [MON YEAR]<br>[CITY]</span></div>
+      <div class="tl-body">
+        <div class="row between"><h2 class="h-card" style="font-size:24px">[ROLE]</h2><span class="chip">Full-time</span></div>
+        <b class="muted">[COMPANY]</b>
+        <p class="muted">[Where it started: what you learned and built here.]</p>
+        <ul><li>[First production system you owned.]</li></ul>
+        <div class="row"><span class="chip">Node.js</span><span class="chip">MongoDB</span></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="section">
+    <h2 class="h-sec" style="margin-bottom:24px">Education</h2>
+    <div class="grid g2">
+      <div class="card"><span class="kicker">[YEAR] — [YEAR]</span><h3 class="h-card">[DEGREE]</h3><p class="muted small">[UNIVERSITY] · [CITY]</p><div class="row"><span class="chip">[Subject]</span><span class="chip">[Subject]</span></div></div>
+      <div class="card"><span class="kicker">[YEAR]</span><h3 class="h-card">[CERTIFICATION]</h3><p class="muted small">[ISSUER]</p></div>
+    </div>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-projects" data-name="Projects"><div class="board-label"><b>Projects</b><span>/2d/projects · 1440</span><a href="projects.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a aria-current="page">Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Projects</span>
+    <h1 class="h-page">Things I have built</h1>
+    <p class="lead">Products, platforms and AI agents, from first sketch to production.</p>
+    <div class="row" role="group" aria-label="Filter projects">
+      <button class="btn btn-primary" style="min-height:36px;padding:0 16px;font-size:14px">All</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">Web apps</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">AI &amp; agents</button>
+      <button class="btn btn-ghost" style="min-height:36px;padding:0 16px;font-size:14px">Cloud &amp; platform</button>
+    </div>
+  </header>
+
+  <a class="card"  style="display:grid;grid-template-columns:1.3fr 1fr;gap:32px;padding:28px;margin-bottom:20px;align-items:center">
+    <div class="thumb" style="margin:0;aspect-ratio:16/10">Featured cover</div>
+    <div class="stack" style="gap:14px"><span class="chip accent" style="align-self:flex-start">Featured</span><h2 class="h-sec">[FEATURED PROJECT]</h2><p class="muted">[What it does, who used it and the result. Two or three lines that make someone want to click.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">LangGraph</span><span class="chip">AWS Bedrock</span></div><span class="arrow">Read the case study →</span></div>
+  </a>
+
+  <section class="grid g3" style="margin-bottom:48px">
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">Web app · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">React</span><span class="chip">Node.js</span></div></a>
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">AI agent · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Python</span><span class="chip">LoRA</span></div></a>
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">Platform · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">NestJS</span><span class="chip">GraphQL</span></div></a>
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">Cloud · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">AWS</span><span class="chip">Docker</span></div></a>
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">Payments · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Alipay</span><span class="chip">DSL</span></div></a>
+    <a class="card" ><div class="thumb">Cover</div><span class="kicker">Web app · [YEAR]</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">MongoDB</span></div></a>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-project" data-name="Project detail"><div class="board-label"><b>Project detail</b><span>/2d/projects/[slug] · 1440</span><a href="project.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a aria-current="page">Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <a class="link small" >← All projects</a>
+    <span class="kicker">Case study · AI agent</span>
+    <h1 class="h-page">[PROJECT NAME]</h1>
+    <p class="lead">[One sentence: what it is and the outcome it achieved.]</p>
+    <div class="row"><a class="btn btn-primary" >Visit live site ↗</a><a class="btn btn-ghost" >Source on GitHub</a></div>
+  </header>
+
+  <div class="figure" style="margin-bottom:32px">Hero screenshot</div>
+
+  <div class="facts" style="margin-bottom:56px">
+    <div><span>Role</span><b>[Lead engineer]</b></div>
+    <div><span>Timeline</span><b>[MON YEAR] — [MON YEAR]</b></div>
+    <div><span>Team</span><b>[N people]</b></div>
+    <div><span>Stack</span><b>Next.js · LangGraph · AWS</b></div>
+  </div>
+
+  <article class="prose" style="margin-bottom:56px">
+    <h2>The problem</h2>
+    <p>[What was broken or missing, and for whom. Keep it concrete: numbers, users, cost.]</p>
+    <h2>What I built</h2>
+    <p>[The approach and the key technical decisions.]</p>
+    <ul><li>[Decision one and why]</li><li>[Decision two and why]</li><li>[Decision three and why]</li></ul>
+    <blockquote>[A pull quote: the one-line takeaway or a client’s words.]</blockquote>
+    <div class="grid g2" style="margin:8px 0"><div class="figure" style="aspect-ratio:4/3">Screenshot</div><div class="figure" style="aspect-ratio:4/3">Screenshot</div></div>
+    <h2>Results</h2>
+    <p>[Outcome: metrics, adoption, what happened next.]</p>
+  </article>
+
+  <section class="section">
+    <div class="row between" style="margin-bottom:24px"><h2 class="h-sec">More projects</h2><a class="link" >All projects →</a></div>
+    <div class="grid g2">
+      <a class="card" ><span class="kicker">Platform</span><h3 class="h-card">[PROJECT NAME]</h3><span class="arrow">View →</span></a>
+      <a class="card" ><span class="kicker">Web app</span><h3 class="h-card">[PROJECT NAME]</h3><span class="arrow">View →</span></a>
+    </div>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-skills" data-name="Skills"><div class="board-label"><b>Skills</b><span>/2d/skills · 1440</span><a href="skills.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a>Projects</a><a aria-current="page">Skills</a><a>Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Skills</span>
+    <h1 class="h-page">What I work with</h1>
+    <p class="lead">The stacks I reach for every day, grouped by where they sit in a product.</p>
+  </header>
+
+  <section class="grid g2" style="gap:24px;margin-bottom:56px">
+    <div class="card skill-group"><h3>Backend</h3><div class="skill-list"><span class="skill"><i></i>Node.js</span><span class="skill"><i></i>NestJS</span><span class="skill"><i></i>GraphQL</span><span class="skill"><i></i>REST APIs</span></div></div>
+    <div class="card skill-group"><h3>Frontend</h3><div class="skill-list"><span class="skill"><i></i>Next.js</span><span class="skill"><i></i>React</span><span class="skill"><i></i>TypeScript</span><span class="skill"><i></i>JavaScript</span><span class="skill"><i></i>HTML &amp; CSS</span></div></div>
+    <div class="card skill-group"><h3>Databases</h3><div class="skill-list"><span class="skill"><i></i>PostgreSQL</span><span class="skill"><i></i>MongoDB</span></div></div>
+    <div class="card skill-group"><h3>AI &amp; LLMs</h3><div class="skill-list"><span class="skill"><i></i>Python</span><span class="skill"><i></i>LangChain</span><span class="skill"><i></i>LangGraph</span><span class="skill"><i></i>LoRA fine-tuning</span><span class="skill"><i></i>Models on Modal</span></div></div>
+    <div class="card skill-group"><h3>Cloud &amp; DevOps</h3><div class="skill-list"><span class="skill"><i></i>AWS (S3, EC2, Lambda, Route 53, Bedrock)</span><span class="skill"><i></i>Docker</span><span class="skill"><i></i>CI/CD</span></div></div>
+    <div class="card skill-group"><h3>Architecture &amp; payments</h3><div class="skill-list"><span class="skill"><i></i>System design</span><span class="skill"><i></i>Architecture planning</span><span class="skill"><i></i>Jira</span><span class="skill"><i></i>DSL</span><span class="skill"><i></i>Alipay framework</span></div></div>
+  </section>
+
+  <section class="section">
+    <h2 class="h-sec" style="margin-bottom:8px">How I work</h2>
+    <p class="muted" style="margin-bottom:24px">[Optional: three short principles that describe your way of building.]</p>
+    <div class="grid g3">
+      <div class="card"><span class="mono muted">01</span><h3 class="h-card">[Principle]</h3><p class="muted small">[One or two lines.]</p></div>
+      <div class="card"><span class="mono muted">02</span><h3 class="h-card">[Principle]</h3><p class="muted small">[One or two lines.]</p></div>
+      <div class="card"><span class="mono muted">03</span><h3 class="h-card">[Principle]</h3><p class="muted small">[One or two lines.]</p></div>
+    </div>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-open-source" data-name="Open source"><div class="board-label"><b>Open source</b><span>/2d/open-source · 1440</span><a href="open-source.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a>Projects</a><a>Skills</a><a aria-current="page">Open source</a><a>Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Open source</span>
+    <h1 class="h-page">Free for everyone</h1>
+    <p class="lead">Things I have contributed to or released in the open.</p>
+  </header>
+  <section style="margin-bottom:56px">
+    <a class="list-row" ><span class="mono muted">Maintainer</span><div class="stack" style="gap:4px"><h3 class="h-card">[REPO / PROJECT]</h3><p class="muted small">[What you contributed and why it mattered.]</p></div><span class="chip">★ [N]</span></a>
+    <a class="list-row" ><span class="mono muted">Contributor</span><div class="stack" style="gap:4px"><h3 class="h-card">[REPO / PROJECT]</h3><p class="muted small">[What you contributed and why it mattered.]</p></div><span class="chip">[N] PRs</span></a>
+    <a class="list-row" ><span class="mono muted">Author</span><div class="stack" style="gap:4px"><h3 class="h-card">[REPO / PROJECT]</h3><p class="muted small">[What you contributed and why it mattered.]</p></div><span class="chip">★ [N]</span></a>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-articles" data-name="Articles"><div class="board-label"><b>Articles</b><span>/2d/articles · 1440</span><a href="articles.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a aria-current="page">Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <header class="page-head">
+    <span class="kicker">Articles</span>
+    <h1 class="h-page">Notes from the work</h1>
+    <p class="lead">Things I have written about building products, AI agents and the cloud.</p>
+  </header>
+  <a class="card"  style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin-bottom:40px">
+    <div class="figure" style="aspect-ratio:16/10">Cover image</div>
+    <div class="stack" style="gap:12px"><span class="kicker">Latest · [DATE]</span><h2 class="h-sec">[ARTICLE TITLE]</h2><p class="muted">[A two-line summary of the article.]</p><span class="arrow">Read it →</span></div>
+  </a>
+  <section style="margin-bottom:56px">
+    <a class="list-row" ><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">6 min</span></a>
+    <a class="list-row" ><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">4 min</span></a>
+    <a class="list-row" ><span class="mono muted">[DATE]</span><div class="stack" style="gap:4px"><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[One-line summary.]</p></div><span class="small muted">9 min</span></a>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-article" data-name="Article detail"><div class="board-label"><b>Article detail</b><span>/2d/articles/[slug] · 1440</span><a href="article.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a aria-current="page">Articles</a><a>Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap" style="max-width:760px">
+  <header class="page-head">
+    <a class="link small" >← All articles</a>
+    <span class="kicker">[DATE] · 6 min read</span>
+    <h1 class="h-page">[ARTICLE TITLE]</h1>
+    <p class="lead">[The standfirst: one or two lines on what this piece is about.]</p>
+  </header>
+  <div class="figure" style="margin-bottom:40px">Cover image</div>
+  <article class="prose" style="margin-bottom:56px">
+    <p>[Opening paragraph.]</p>
+    <h2>[Section heading]</h2>
+    <p>[Body paragraph.]</p>
+    <pre class="mono" style="background:var(--surface-2);border-radius:12px;padding:16px 18px;overflow:auto;color:var(--text)">const agent = createAgent({ model, tools });</pre>
+    <p>[Body paragraph.]</p>
+    <blockquote>[A pull quote.]</blockquote>
+    <h2>[Section heading]</h2>
+    <p>[Closing paragraph.]</p>
+  </article>
+  <div class="card row between" style="flex-direction:row;margin-bottom:24px"><div class="stack" style="gap:2px"><b>Written by [YOUR NAME]</b><span class="muted small">Full-stack, AI &amp; cloud engineer</span></div><a class="btn btn-ghost" >Get in touch</a></div>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+<section class="board" id="b-contact" data-name="Contact"><div class="board-label"><b>Contact</b><span>/2d/contact · 1440</span><a href="contact.html" target="_blank" rel="noopener">Open page ↗</a></div><div class="artboard"><header class="site-head"><div class="wrap"><span class="brand"><b>coffee &amp; code</b><span>[YOUR NAME] · full-stack, AI &amp; cloud</span></span><nav class="nav"><a>Home</a><a>About</a><a>Experience</a><a>Projects</a><a>Skills</a><a>Open source</a><a>Articles</a><a aria-current="page">Contact</a></nav><div class="head-actions"><span class="btn btn-ghost" style="min-height:40px;padding:0 14px;font-size:14px">3D café</span><span class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span></div></div></header><main class="wrap">
+  <section class="grid g2" style="gap:48px;padding:72px 0 56px;align-items:start">
+    <div class="stack" style="gap:20px">
+      <span class="kicker">Contact</span>
+      <h1 class="h-page">Let’s build something together.</h1>
+      <p class="lead">Open to freelance and full-time work with teams anywhere. I usually reply within a day.</p>
+      <div class="stack" style="gap:10px;margin-top:8px">
+        <a class="card row"  style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">Email</span><span>[YOUR EMAIL]</span></a>
+        <a class="card row"  style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">LinkedIn</span><span>[LINK]</span></a>
+        <a class="card row"  style="flex-direction:row;padding:16px 20px"><span class="kicker" style="width:84px">GitHub</span><span>[LINK]</span></a>
+      </div>
+    </div>
+    <form class="card" style="padding:28px;gap:16px" >
+      <h2 class="h-card">Send a message</h2>
+      <div class="grid g2" style="gap:12px"><div class="field"><label for="n">Name</label><input class="input" id="n" placeholder="Your name"></div><div class="field"><label for="e">Email</label><input class="input" id="e" type="email" placeholder="you@company.com"></div></div>
+      <div class="field"><label for="t">What is it about?</label><select class="input" id="t"><option>A freelance project</option><option>A full-time role</option><option>Just saying hi</option></select></div>
+      <div class="field"><label for="m">Message</label><textarea class="input" id="m" placeholder="Tell me a little about it…"></textarea></div>
+      <button class="btn btn-primary" style="align-self:flex-start">Send message</button>
+    </form>
+  </section>
+</main><footer class="site-foot"><div class="wrap"><span>© [YEAR] [YOUR NAME] · Made with coffee &amp; code</span><div class="row"><span class="link">GitHub</span><span class="link">LinkedIn</span><span class="link">Email</span></div></div></footer></div></section>
+  </div>
+</main>
+<script>
+(() => {
+  const vp = document.getElementById('vp'), world = document.getElementById('world');
+  const zVal = document.getElementById('z-val');
+  const v = { x: 0, y: 0, z: 1 };
+  const MIN = 0.04, MAX = 2;
+  const apply = () => { world.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.z})`; zVal.textContent = Math.round(v.z * 100) + '%'; };
+  const zoomAt = (nz, cx, cy) => {
+    nz = Math.min(MAX, Math.max(MIN, nz));
+    v.x = cx - (cx - v.x) * (nz / v.z); v.y = cy - (cy - v.y) * (nz / v.z); v.z = nz; apply();
+  };
+  // fit a rectangle (in world coordinates) into the viewport
+  const fitRect = (x, y, w, h, pad) => {
+    const W = vp.clientWidth, H = vp.clientHeight; pad = pad == null ? 48 : pad;
+    const z = Math.min(MAX, Math.max(MIN, Math.min((W - pad * 2) / w, (H - pad * 2) / h)));
+    v.z = z; v.x = (W - w * z) / 2 - x * z; v.y = Math.max(pad, (H - h * z) / 2) - y * z; apply();
+  };
+  const fitAll = () => fitRect(0, 0, world.offsetWidth, world.offsetHeight, 32);
+  const layers = [...document.querySelectorAll('.layer')];
+  const focusBoard = (id) => {
+    const b = document.getElementById(id); if (!b) return;
+    // fit the board's width; tall pages start at their top
+    const W = vp.clientWidth, z = Math.min(1, (W - 96) / b.offsetWidth);
+    v.z = z; v.x = (W - b.offsetWidth * z) / 2 - b.offsetLeft * z; v.y = 32 - b.offsetTop * z; apply();
+    layers.forEach((l) => l.classList.toggle('active', l.dataset.target === id));
+    document.querySelectorAll('.board').forEach((x) => x.classList.toggle('active', x.id === id));
+  };
+  layers.forEach((l) => l.addEventListener('click', () => focusBoard(l.dataset.target)));
+
+  // pan: drag anywhere; wheel pans, ctrl/cmd + wheel (and trackpad pinch) zooms at the cursor
+  let drag = null;
+  vp.addEventListener('pointerdown', (e) => { if (e.target.closest('a')) return; drag = { x: e.clientX, y: e.clientY, vx: v.x, vy: v.y }; vp.classList.add('panning'); vp.setPointerCapture(e.pointerId); });
+  vp.addEventListener('pointermove', (e) => { if (!drag) return; v.x = drag.vx + e.clientX - drag.x; v.y = drag.vy + e.clientY - drag.y; apply(); });
+  const end = () => { drag = null; vp.classList.remove('panning'); };
+  vp.addEventListener('pointerup', end); vp.addEventListener('pointercancel', end);
+  vp.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const r = vp.getBoundingClientRect();
+    if (e.ctrlKey || e.metaKey) zoomAt(v.z * Math.exp(-e.deltaY * 0.0025), e.clientX - r.left, e.clientY - r.top);
+    else { v.x -= e.deltaX; v.y -= e.deltaY; apply(); }
+  }, { passive: false });
+  const centre = () => [vp.clientWidth / 2, vp.clientHeight / 2];
+  document.getElementById('z-in').onclick = () => zoomAt(v.z * 1.25, ...centre());
+  document.getElementById('z-out').onclick = () => zoomAt(v.z / 1.25, ...centre());
+  document.getElementById('z-fit').onclick = fitAll;
+  document.getElementById('z-100').onclick = () => zoomAt(1, ...centre());
+
+  // light/dark applies to every artboard; the canvas chrome stays dark like a design tool
+  const boards = [...document.querySelectorAll('.artboard')];
+  const bL = document.getElementById('th-light'), bD = document.getElementById('th-dark');
+  const setTheme = (dark) => {
+    boards.forEach((b) => b.classList.toggle('dark', dark));
+    bL.setAttribute('aria-pressed', String(!dark)); bD.setAttribute('aria-pressed', String(dark));
+    try { localStorage.setItem('design-canvas-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  };
+  bL.onclick = () => setTheme(false); bD.onclick = () => setTheme(true);
+  let saved = null; try { saved = localStorage.getItem('design-canvas-theme'); } catch (e) {}
+  setTheme(saved === 'dark');
+
+  addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea')) return;
+    if (e.key === '0') fitAll();
+    else if (e.key === '1') zoomAt(1, ...centre());
+    else if (e.key === '+' || e.key === '=') zoomAt(v.z * 1.25, ...centre());
+    else if (e.key === '-') zoomAt(v.z / 1.25, ...centre());
+    else if (e.key.toLowerCase() === 'd') setTheme(!boards[0].classList.contains('dark'));
+  });
+  // fonts change board heights, so fit once they are ready
+  fitAll();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitAll);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,826 @@
+{
+  "source": "personalproject-Abiali-Portfolio/src/lib/{params,projects.params,experiences.params,educations.params,skills.params}.ts",
+  "notes": [
+    "User confirmed Wedfield name and draft-only import; current role from Nov 2024 intentionally excluded.",
+    "Wedfield customer/admin/vendor/backend merged. ZanaduHealth frontend/backend merged.",
+    "Wedcell Institute kept separate because it has its own site and purpose; relationship still to confirm.",
+    "Avantica experience recovered from commented-out source; company spelling and exact end date need confirmation.",
+    "Wedfield end date unknown: source says six-month contract but role is open-ended. No current employment inferred.",
+    "Globalia Apr 31 corrected to month-only Apr 2023. Spotsaver starts Jul 2022, one month before listed Globalia employment.",
+    "Neforia employer conflicts between long and short descriptions; employer omitted from project.",
+    "Education uses year-only labels to avoid malformed dates. Institution spelling should be checked before publishing.",
+    "All nine exercises have repeated legacy dates; dates omitted rather than treated as verified.",
+    "No claims about total years, revenue, performance gains, sole ownership or current availability added.",
+    "Media migration is recorded separately in legacy-media-manifest.json: original project assets, portrait and existing resume are copied to Supabase Storage. The resume remains the original older document.",
+    "Profile and About were subsequently applied at the user's request; current copy is recorded in profile-about.json. This profile_draft is the initial proposal.",
+    "Links copied from source without checking current availability."
+  ],
+  "profile_draft": {
+    "name": "Abiali Doctor",
+    "role": "Full-Stack Developer",
+    "intro": "I build web applications with JavaScript and TypeScript, working across React and Next.js interfaces, Node.js APIs, databases, and cloud deployments.",
+    "location": "Surat, India",
+    "email": "abialidctr@gmail.com",
+    "story": [
+      "My earlier work spans client websites, reservation systems, employee marketing tools, a wedding marketplace, and a wellness platform.",
+      "I work across interface development, API integration, backend services, and deployment, translating product requirements and designs into working applications."
+    ]
+  },
+  "projects": [
+    {
+      "sort_order": 0,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "wedfield",
+      "name": "Wedfield",
+      "kind": "Wedding marketplace",
+      "category": "platform",
+      "year": "2023",
+      "role": "Full-Stack Developer",
+      "timeline": "May–Oct 2023 (legacy project dates; confirm)",
+      "summary": "A wedding marketplace connecting couples with vendors, venues, and products, with customer and business apps, an admin console, and a shared backend.",
+      "problem": "Wedding planning required connected workflows for discovering suppliers, managing purchases, communicating with vendors, and organising events.",
+      "built": "Built Next.js customer, vendor, and admin applications and Node.js/Express APIs backed by MongoDB. Implemented vendor and venue listings, real-time messaging, payments, delivery integration, reviews, guest lists, invitations, and planning tools. Built an invitation editor with WhatsApp integration and packaged customer and vendor applications for mobile with Capacitor. Managed AWS EC2 deployments and S3 uploads.",
+      "skills": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Redux Toolkit",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Socket.IO",
+        "AWS EC2",
+        "AWS S3",
+        "Razorpay",
+        "Capacitor"
+      ],
+      "links": [
+        {
+          "label": "Website",
+          "url": "https://wedfield.com/"
+        },
+        {
+          "label": "Vendors",
+          "url": "https://vendors.wedfield.com/"
+        },
+        {
+          "label": "Admin",
+          "url": "https://admin.wedfield.com/"
+        },
+        {
+          "label": "Customer Android app",
+          "url": "https://play.google.com/store/apps/details?id=com.wedding.wedfield"
+        },
+        {
+          "label": "Customer iOS app",
+          "url": "https://apps.apple.com/in/app/wedfield-wedding-marketplace/id6736426335"
+        },
+        {
+          "label": "Business Android app",
+          "url": "https://play.google.com/store/apps/details?id=com.business.wedfield"
+        },
+        {
+          "label": "Business iOS app",
+          "url": "https://apps.apple.com/in/app/wedfield-business/id6736427192"
+        }
+      ]
+    },
+    {
+      "sort_order": 1,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "zanadu-health",
+      "name": "ZanaduHealth",
+      "kind": "Employee wellness platform",
+      "category": "platform",
+      "year": "2023",
+      "role": "Full-Stack Developer",
+      "timeline": "Nov–Dec 2023 (legacy project dates; confirm)",
+      "summary": "A wellness platform connecting employees with health coaches through video sessions.",
+      "problem": "Employees and coaches needed a shared platform for accessing wellness services and joining remote coaching sessions.",
+      "built": "Developed frontend interfaces with Next.js and TypeScript, integrated APIs using RTK Query, and implemented Agora video sessions. Built Node.js/Express API routes, controllers, middleware, and models, with JWT authentication, file uploads, logging, and AWS S3 image storage. Worked with a four-person development team.",
+      "skills": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "RTK Query",
+        "Agora",
+        "Sass",
+        "Chart.js",
+        "Node.js",
+        "Express",
+        "JWT",
+        "AWS S3",
+        "Winston"
+      ],
+      "links": [
+        {
+          "label": "Application",
+          "url": "https://app.zanaduhealth.com/"
+        }
+      ]
+    },
+    {
+      "sort_order": 2,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "spotsaver",
+      "name": "Spotsaver",
+      "kind": "Reservation platform",
+      "category": "platform",
+      "year": "2022",
+      "role": "Frontend Developer",
+      "timeline": "Jul–Dec 2022 (legacy project dates; confirm)",
+      "summary": "A reservation platform with visitor booking, brand management, administration, and QR-based check-in workflows.",
+      "problem": "Visitors, brand managers, administrators, and security staff needed coordinated tools to manage reservations and check-ins.",
+      "built": "Joined an existing application and developed React interfaces from Figma designs. Integrated APIs with RTK Query for booking and management workflows, and worked with clients and QA to resolve issues and deliver features. The platform included personal and group reservations, cancellations, store management, and QR-based reservation completion.",
+      "skills": [
+        "React",
+        "Redux Toolkit",
+        "RTK Query",
+        "Next.js",
+        "Ant Design",
+        "Material UI",
+        "Sass",
+        "Chart.js"
+      ],
+      "links": [
+        {
+          "label": "Website",
+          "url": "https://www.myspotsaver.com/"
+        }
+      ]
+    },
+    {
+      "sort_order": 3,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "niusafe",
+      "name": "Niusafe",
+      "kind": "Employee advocacy platform",
+      "category": "web",
+      "year": "2023",
+      "role": "Frontend Developer",
+      "timeline": "Jan–Apr 2023",
+      "summary": "An employee-facing marketing platform for discovering company content and sharing it through social channels.",
+      "problem": "Employees needed a central place to find company posts and take part in social marketing.",
+      "built": "Extended an existing React application, translated Figma designs into responsive interfaces, and connected frontend workflows to APIs with RTK Query. Worked with the client and testing team on feature delivery and issue resolution.",
+      "skills": [
+        "React",
+        "Redux Toolkit",
+        "RTK Query",
+        "Ant Design",
+        "Material UI",
+        "Axios",
+        "Yup"
+      ],
+      "links": []
+    },
+    {
+      "sort_order": 4,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "neforia",
+      "name": "Neforia",
+      "kind": "Digital agency website",
+      "category": "web",
+      "year": "2022",
+      "role": "Frontend Developer",
+      "timeline": "Oct 2022",
+      "summary": "A digital marketing agency website showcasing its work and current trends, built with React and Firebase.",
+      "problem": "The agency needed a website to present its portfolio and publish current trends.",
+      "built": "Translated Figma designs into responsive React pages and built Firestore models for portfolio projects and trends. Connected the frontend to Firebase and implemented reusable interface components.",
+      "skills": [
+        "React",
+        "JavaScript",
+        "Firebase",
+        "Firestore",
+        "Material UI",
+        "Styled Components"
+      ],
+      "links": [
+        {
+          "label": "Website",
+          "url": "https://neforia.com/"
+        }
+      ]
+    },
+    {
+      "sort_order": 5,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "wedcell-institute",
+      "name": "Wedcell Institute",
+      "kind": "Institute website",
+      "category": "web",
+      "year": "2023",
+      "role": "Frontend Developer",
+      "timeline": "Jan 2023 (legacy dates; confirm)",
+      "summary": "An informational website presenting the institute and its offerings.",
+      "problem": "The institute needed a clear online presence to introduce its services and information.",
+      "built": "Built responsive frontend pages from supplied designs using React, Next.js, Sass, HTML, and CSS, including carousel components.",
+      "skills": [
+        "React",
+        "Next.js",
+        "Sass",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "links": [
+        {
+          "label": "Website",
+          "url": "https://www.wedcellinstitute.com/"
+        }
+      ]
+    },
+    {
+      "sort_order": 6,
+      "status": "draft",
+      "featured": false,
+      "team": "",
+      "decisions": [],
+      "results": "",
+      "slug": "dharamveer-foundation",
+      "name": "Dharamveer Foundation",
+      "kind": "Nonprofit website",
+      "category": "web",
+      "year": "2023",
+      "role": "Frontend Developer",
+      "timeline": "Jan 2023",
+      "summary": "A nonprofit website presenting the foundation's work and supporting online donations.",
+      "problem": "The foundation needed to explain its work and provide an online donation flow.",
+      "built": "Built React and Next.js pages from supplied designs and integrated payment collection APIs for donations.",
+      "skills": [
+        "React",
+        "Next.js",
+        "Sass",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "links": [
+        {
+          "label": "Website",
+          "url": "https://www.dharmveerfoundation.com/"
+        }
+      ]
+    },
+    {
+      "slug": "audio-player",
+      "name": "Custom Audio Player",
+      "summary": "Built a custom audio player interface as a frontend exercise.",
+      "built": "Built a custom audio player interface as a frontend exercise.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 7,
+      "skills": [
+        "React",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/Audio-player-Component-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/Audio-player-Component-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "avantica-design-exercise",
+      "name": "Avantica Design Exercise",
+      "summary": "Implemented a supplied interface design as a frontend assessment.",
+      "built": "Implemented a supplied interface design as a frontend assessment.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 8,
+      "skills": [
+        "React",
+        "Next.js",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/avantica-inovation-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/avantica-inovation-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "d3-bubble-chart",
+      "name": "Interactive D3 Bubble Chart",
+      "summary": "Built a responsive bubble chart with draggable nodes, hover interactions, and collision behaviour.",
+      "built": "Built a responsive bubble chart with draggable nodes, hover interactions, and collision behaviour.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 9,
+      "skills": [
+        "D3.js",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/BubbleChart-in-D3-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/BubbleChart-in-D3-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "family-tree",
+      "name": "Family Tree Data Exercise",
+      "summary": "Processed family relationship data to validate references and group connected family members.",
+      "built": "Processed family relationship data to validate references and group connected family members.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 10,
+      "skills": [
+        "React",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/Family-Tree-creator-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/Family-Tree-creator-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "jethitech-design-exercise",
+      "name": "JethiTech Homepage Exercise",
+      "summary": "Implemented a homepage with a header and carousel from a supplied design.",
+      "built": "Implemented a homepage with a header and carousel from a supplied design.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 11,
+      "skills": [
+        "React",
+        "Material UI",
+        "Styled Components",
+        "JavaScript"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/JethiTech-Solutions-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/JethiTech-Solutions-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "panchatattva-design-exercise",
+      "name": "Panchatattva Design Exercise",
+      "summary": "Translated a health-themed Figma layout into a responsive page with carousel elements.",
+      "built": "Translated a health-themed Figma layout into a responsive page with carousel elements.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 12,
+      "skills": [
+        "React",
+        "Next.js",
+        "Material UI",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/panchatattva-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/panchatattva-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "water-tank",
+      "name": "Trapped Water Exercise",
+      "summary": "Implemented a solution for calculating water trapped between blocks of different heights.",
+      "built": "Implemented a solution for calculating water trapped between blocks of different heights.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 13,
+      "skills": [
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/The-water-tank-problem-test-task/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/The-water-tank-problem-test-task"
+        }
+      ]
+    },
+    {
+      "slug": "art-memory-game",
+      "name": "Art Memory Game",
+      "summary": "Built a card-matching memory game as a frontend learning project.",
+      "built": "Built a card-matching memory game as a frontend learning project.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 14,
+      "skills": [
+        "React",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/artMemoryGame-learning/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/artMemoryGame-learning"
+        }
+      ]
+    },
+    {
+      "slug": "calculator",
+      "name": "Calculator",
+      "summary": "Built a calculator interface as a frontend learning project.",
+      "built": "Built a calculator interface as a frontend learning project.",
+      "kind": "Practice / assessment",
+      "category": "web",
+      "year": "",
+      "role": "Frontend Developer",
+      "timeline": "",
+      "team": "",
+      "problem": "",
+      "decisions": [],
+      "results": "",
+      "featured": false,
+      "status": "draft",
+      "sort_order": 15,
+      "skills": [
+        "React",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "links": [
+        {
+          "label": "Demo",
+          "url": "https://abialidr.github.io/calc-learn/"
+        },
+        {
+          "label": "Source",
+          "url": "https://github.com/Abialidr/calc-learn"
+        }
+      ]
+    }
+  ],
+  "experiences": [
+    {
+      "slug": "avantica-innovations",
+      "role": "Full-Stack Developer",
+      "company": "Avantica Innovations",
+      "place": "Remote · Surat",
+      "employment_type": "Contract",
+      "start_label": "Nov 2023",
+      "end_label": "To confirm",
+      "summary": "Contributed to frontend and backend development for the ZanaduHealth wellness platform.",
+      "highlights": [
+        "Built Next.js and TypeScript interfaces from Figma designs and integrated backend APIs.",
+        "Implemented Agora video session features.",
+        "Developed Express APIs and integrated file uploads with AWS S3."
+      ],
+      "skills": [
+        "Next.js",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "Express",
+        "Agora",
+        "AWS S3"
+      ],
+      "status": "draft",
+      "sort_order": 0
+    },
+    {
+      "slug": "wedfield",
+      "role": "Senior Full-Stack Developer",
+      "company": "Wedfield",
+      "place": "Remote · Surat",
+      "employment_type": "Contract",
+      "start_label": "May 2023",
+      "end_label": "To confirm",
+      "summary": "Built connected customer, vendor, and admin applications for a wedding marketplace, together with its backend services.",
+      "highlights": [
+        "Developed Next.js applications and MongoDB-backed Express APIs.",
+        "Implemented messaging, payments, delivery, invitation design, and planning workflows.",
+        "Created mobile applications with Capacitor.",
+        "Managed AWS EC2 deployments and S3 file storage."
+      ],
+      "skills": [
+        "Next.js",
+        "React",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Socket.IO",
+        "AWS",
+        "Capacitor"
+      ],
+      "status": "draft",
+      "sort_order": 1
+    },
+    {
+      "slug": "globalia-soft",
+      "role": "Junior Full-Stack Developer",
+      "company": "Globalia Soft",
+      "place": "On-site · Surat",
+      "employment_type": "Full-time",
+      "start_label": "Aug 2022",
+      "end_label": "Apr 2023",
+      "summary": "Developed web applications for clients across reservation, marketing, and agency projects.",
+      "highlights": [
+        "Translated Figma designs into responsive React interfaces.",
+        "Integrated REST APIs and extended existing application workflows.",
+        "Built backend APIs and database integrations where required.",
+        "Worked with clients and QA teams and supported AWS deployments."
+      ],
+      "skills": [
+        "React",
+        "JavaScript",
+        "Redux Toolkit",
+        "RTK Query",
+        "Node.js",
+        "AWS"
+      ],
+      "status": "draft",
+      "sort_order": 2
+    },
+    {
+      "slug": "lucky-it-services",
+      "role": "Intern and Junior Developer",
+      "company": "Lucky IT Services",
+      "place": "On-site · Surat",
+      "employment_type": "Full-time",
+      "start_label": "Jul 2020",
+      "end_label": "Jul 2022",
+      "summary": "Built a foundation in frontend development through client website work and hands-on application development.",
+      "highlights": [
+        "Created web pages with HTML, CSS, and JavaScript.",
+        "Developed React components and responsive layouts.",
+        "Translated Figma designs into working interfaces and resolved UI issues."
+      ],
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React",
+        "Figma"
+      ],
+      "status": "draft",
+      "sort_order": 3
+    }
+  ],
+  "education": [
+    {
+      "title": "Frontend and Backend Development",
+      "org": "Independent study",
+      "when_label": "Since 2021",
+      "subjects": [
+        "Official documentation",
+        "Online courses",
+        "Project-based learning"
+      ],
+      "status": "draft",
+      "sort_order": 0
+    },
+    {
+      "title": "Bachelor of Computer Applications",
+      "org": "Veer Narmad South Gujarat University",
+      "when_label": "2018–2021",
+      "subjects": [],
+      "status": "draft",
+      "sort_order": 1
+    },
+    {
+      "title": "Higher Secondary School Certificate",
+      "org": "P. R. Khatiwala Vidya Sankul",
+      "when_label": "2016–2018",
+      "subjects": [],
+      "status": "draft",
+      "sort_order": 2
+    },
+    {
+      "title": "Secondary School Certificate",
+      "org": "Madresha Tayyebyah Boys High School",
+      "when_label": "2015–2016",
+      "subjects": [],
+      "status": "draft",
+      "sort_order": 3
+    }
+  ],
+  "skill_groups": [
+    {
+      "title": "Frontend",
+      "skills": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Redux Toolkit",
+        "RTK Query",
+        "Tailwind CSS",
+        "Material UI",
+        "Ant Design",
+        "Bootstrap",
+        "Sass",
+        "Styled Components"
+      ],
+      "status": "draft",
+      "sort_order": 0
+    },
+    {
+      "title": "Backend and databases",
+      "skills": [
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Mongoose",
+        "PostgreSQL",
+        "Sequelize",
+        "TypeORM",
+        "NestJS",
+        "Firebase",
+        "Firestore",
+        "PHP"
+      ],
+      "status": "draft",
+      "sort_order": 1
+    },
+    {
+      "title": "Cloud and delivery",
+      "skills": [
+        "AWS EC2",
+        "AWS S3",
+        "AWS RDS",
+        "Nginx",
+        "Vercel",
+        "Git",
+        "GitHub"
+      ],
+      "status": "draft",
+      "sort_order": 2
+    },
+    {
+      "title": "Integrations and applications",
+      "skills": [
+        "Socket.IO",
+        "Agora",
+        "Capacitor",
+        "Electron",
+        "Stripe",
+        "Razorpay",
+        "JWT",
+        "Multer",
+        "D3.js",
+        "Chart.js"
+      ],
+      "status": "draft",
+      "sort_order": 3
+    },
+    {
+      "title": "Additional experience and learning",
+      "skills": [
+        "Svelte",
+        "React Native",
+        "Axios",
+        "Yup",
+        "Formik",
+        "Winston",
+        "Lottie",
+        "Slick Carousel",
+        "Lido.js"
+      ],
+      "status": "draft",
+      "sort_order": 4
+    }
+  ]
+}

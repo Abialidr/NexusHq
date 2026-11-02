@@ -1,0 +1,13 @@
+{
+  "project_name": "portfolio-manager",
+  "mode": "embedded",
+  "ignored_paths": [
+    "personalproject-Abiali-Portfolio"
+  ],
+  "repos": [
+    {
+      "name": "portfolio-manager",
+      "relative_path": "."
+    }
+  ]
+}

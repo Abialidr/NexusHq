@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home · 2D design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design.css">
+</head>
+<body data-page="home">
+<div id="head"></div>
+<main>
+<div class="wrap">
+  <section class="hero">
+    <div class="stack" style="gap:24px">
+      <div class="row"><span class="chip sage"><i class="dot"></i>Open to freelance &amp; full-time work</span></div>
+      <h1 class="h-hero" data-words>Hey, I am [YOUR NAME].<br>I build products, AI agents and the cloud they run on.</h1>
+      <p class="lead">[Two lines on who you are and what you love building.] Based in India, working with teams worldwide.</p>
+      <div class="row"><a class="btn btn-primary" href="projects.html">See my work <span class="arr">→</span></a><a class="btn btn-ghost" href="contact.html">Get in touch</a></div>
+    </div>
+    <div class="hero-card">[ Portrait ]<div class="badge"><i class="dot"></i><span>Currently brewing <b>[CURRENT PROJECT]</b></span></div></div>
+  </section>
+
+  <section class="stats" aria-label="At a glance">
+    <div class="stat"><b data-count="6" data-suffix="+">6+</b><span>years building software</span></div>
+    <div class="stat"><b data-count="30" data-suffix="+">30+</b><span>projects shipped</span></div>
+    <div class="stat"><b data-count="12">12</b><span>AI agents in production</span></div>
+    <div class="stat"><b data-count="40" data-suffix="%">40%</b><span>[best cost or latency win]</span></div>
+  </section>
+</div>
+
+<div class="marquee" aria-label="Tech I work with">
+  <div class="marquee-track">
+    <span>Node.js</span><span>NestJS</span><span>Next.js</span><span>React</span><span>TypeScript</span><span>PostgreSQL</span><span>MongoDB</span><span>Python</span><span>LangGraph</span><span>LangChain</span><span>AWS</span><span>Docker</span><span>GraphQL</span>
+    <span aria-hidden="true">Node.js</span><span aria-hidden="true">NestJS</span><span aria-hidden="true">Next.js</span><span aria-hidden="true">React</span><span aria-hidden="true">TypeScript</span><span aria-hidden="true">PostgreSQL</span><span aria-hidden="true">MongoDB</span><span aria-hidden="true">Python</span><span aria-hidden="true">LangGraph</span><span aria-hidden="true">LangChain</span><span aria-hidden="true">AWS</span><span aria-hidden="true">Docker</span><span aria-hidden="true">GraphQL</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="section">
+    <div class="row between" style="margin-bottom:28px"><h2 class="h-sec">Selected projects</h2><a class="link" href="projects.html">All projects →</a></div>
+    <div class="grid g3">
+      <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Web app</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">Next.js</span><span class="chip">PostgreSQL</span></div></a>
+      <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">AI agent</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">LangGraph</span><span class="chip">AWS</span></div></a>
+      <a class="card" href="project.html"><div class="thumb">Cover</div><span class="kicker">Platform</span><h3 class="h-card">[PROJECT NAME]</h3><p class="muted small">[What it does and the result, in one or two lines.]</p><div class="row"><span class="chip">NestJS</span><span class="chip">GraphQL</span></div></a>
+    </div>
+  </section>
+
+  <section class="section grid g2" style="gap:48px">
+    <div class="stack" style="gap:20px">
+      <div class="row between"><h2 class="h-sec">Experience</h2><a class="link" href="experience.html">Full history →</a></div>
+      <div class="timeline">
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — now</span><b>[ROLE] · [COMPANY]</b></div>
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — [YEAR]</span><b>[ROLE] · [COMPANY]</b></div>
+        <div class="tl-item" style="grid-template-columns:1fr;gap:6px;padding:20px 0"><span class="tl-when">[YEAR] — [YEAR]</span><b>[ROLE] · [COMPANY]</b></div>
+      </div>
+    </div>
+    <div class="stack" style="gap:20px">
+      <div class="row between"><h2 class="h-sec">What I work with</h2><a class="link" href="skills.html">All skills →</a></div>
+      <div class="skill-list"><span class="skill"><i></i>Node.js</span><span class="skill"><i></i>NestJS</span><span class="skill"><i></i>Next.js</span><span class="skill"><i></i>TypeScript</span><span class="skill"><i></i>PostgreSQL</span><span class="skill"><i></i>Python</span><span class="skill"><i></i>LangGraph</span><span class="skill"><i></i>AWS</span><span class="skill"><i></i>Docker</span></div>
+      <div class="card" style="margin-top:8px"><span class="kicker">Latest article</span><h3 class="h-card">[ARTICLE TITLE]</h3><p class="muted small">[DATE] · 6 min read</p><a class="arrow" href="article.html">Read it →</a></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <a class="card cafe-card" href="/3d">
+      <div class="cafe-shot"><img src="cafe-preview.jpg" alt="The 3D coffee &amp; code café: the owner coding at the counter"><span class="live"><i class="dot"></i>Live 3D</span></div>
+      <div class="cafe-body"><span class="kicker">The 3D version</span><h2 class="h-sec">Step into the café</h2><p class="muted">The same portfolio as a little 3D coffee shop. Click the menu board for skills, the bookshelf for projects, or say hi to the barista.</p><span class="arrow">Walk in →</span></div>
+    </a>
+  </section>
+
+  <section class="section"><div class="band"><div class="steam" aria-hidden="true"><i></i><i></i><i></i></div><h2>Have a project in mind? Let’s talk over a coffee.</h2><a class="btn btn-primary" href="contact.html">Start a conversation <span class="arr">→</span></a></div></section>
+</div>
+</main>
+<div id="foot"></div>
+<script src="design.js"></script>
+</body>
+</html>

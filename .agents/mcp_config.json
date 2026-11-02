@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "devsmind": {
+      "command": "devsmind",
+      "args": [
+        "start",
+        "--stdio",
+        "--path",
+        "C:\\work 2\\portfolio-manager\\.devsmind"
+      ]
+    }
+  }
+}
