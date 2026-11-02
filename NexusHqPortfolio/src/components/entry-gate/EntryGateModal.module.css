@@ -12,7 +12,9 @@
   animation: fadeIn 0.35s ease both;
 }
 
+.closeButton { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text); cursor: pointer; font: inherit; }
 .panel {
+  position: relative;
   width: 100%;
   max-width: 480px;
   max-height: calc(100dvh - 32px);
@@ -32,6 +34,7 @@
 
 .eyebrow {
   margin: 0;
+  padding-right: 32px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
