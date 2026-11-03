@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { connection } from "next/server";
 import ConfigBridge from "@/components/ConfigBridge";
 import { getConfig, toPublic } from "@/lib/config";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"], weight: ["600", "700", "800"] });
-const sans = Instrument_Sans({ variable: "--font-sans", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "600"] });
+// Plain Google Fonts stylesheet instead of next/font: next/font/google fails to build on Vercel when the build runs
+// from the monorepo root (Turbopack can't resolve its internal font loader). globals.css maps --font-* to these.
+const FONTS_URL = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800" +
+  "&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap";
 
 export const metadata: Metadata = {
   title: { default: "NexusHQ Admin", template: "%s · NexusHQ Admin" },
@@ -24,8 +24,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await connection();
   const config = getConfig();
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href={FONTS_URL} />
+      </head>
       <body><ConfigBridge config={config && toPublic(config)}>{children}</ConfigBridge></body>
     </html>
   );

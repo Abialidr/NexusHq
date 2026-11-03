@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { readConfig } from "@nexushq/shared/config";
 import type { Database } from "@/lib/database.types";
+import { HOSTED } from "@/lib/hosted";
 
 const PUBLIC_PATHS = ["/login", "/kind-words"];
 
@@ -13,6 +14,14 @@ export async function updateSession(request: NextRequest) {
 
   const config = readConfig();
   if (!config) {
+    // The hosted admin has no setup wizard: its Supabase URL + key come from the host's environment variables.
+    if (HOSTED) {
+      return new NextResponse(
+        "NexusHQ hosted admin: Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and " +
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in the host's environment variables (Production), then redeploy.",
+        { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } },
+      );
+    }
     if (request.nextUrl.pathname === "/setup") return response;
     const url = request.nextUrl.clone();
     url.pathname = "/setup";

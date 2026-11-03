@@ -304,6 +304,8 @@ tr:hover .row-actions { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 /* ---------- app additions (beyond the static mockup) ---------- */
+/* Font families come from the Google Fonts stylesheet linked in app/layout.tsx. */
+:root { --font-display: "Bricolage Grotesque"; --font-sans: "Instrument Sans"; --font-mono: "JetBrains Mono"; }
 :root { --display: var(--font-display), system-ui, sans-serif; --sans: var(--font-sans), system-ui, sans-serif; --mono: var(--font-mono), ui-monospace, monospace; }
 .drop-target { outline: 2px dashed var(--accent); outline-offset: 2px; }
 .err { color: var(--danger); font-size: 13px; font-weight: 600; }
