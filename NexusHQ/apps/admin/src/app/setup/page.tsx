@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { HOSTED } from "@/lib/hosted";
 import { readConfig } from "@nexushq/shared/config";
 import SetupWizard from "@/components/SetupWizard";
 import { requireAdmin } from "@/lib/auth";
@@ -10,6 +12,8 @@ export const metadata = { title: "Setup" };
 // re-run, e.g. to create the worker user or install new migrations.
 export default async function SetupPage() {
   await connection();
+  if (HOSTED) notFound(); // setup writes a local config file and installs migrations: home PC only
+
   const config = readConfig();
   if (config) await requireAdmin();
   return (

@@ -1,5 +1,7 @@
 import AgentSettings, { type CommandItem, type SettingsRow, type WorkerStatus } from "@/components/AgentSettings";
+import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { HOSTED } from "@/lib/hosted";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "AI agents" };
@@ -8,6 +10,7 @@ export const metadata = { title: "AI agents" };
 // commands (test, refresh models, pull). Reads are RLS-scoped to the admin; writes go through actions.ts.
 export default async function AgentsPage() {
   await requireAdmin();
+  if (HOSTED) notFound(); // agent settings and worker commands: home PC only
   const supabase = await createClient();
   const [settings, status, commands, secrets] = await Promise.all([
     supabase.from("agent_settings").select("*"),

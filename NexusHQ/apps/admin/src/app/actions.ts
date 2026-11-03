@@ -5,6 +5,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { HOSTED, HOSTED_ONLY_LOCAL } from "@/lib/hosted";
 import { createClient } from "@/lib/supabase/server";
 import { LIST_SECTIONS, allFields, slugify, type Field, type ListTable } from "@/lib/sections";
 import type { Database, Json } from "@/lib/database.types";
@@ -204,6 +205,7 @@ function providerChoice(v: Values): ProviderChoice | string {
 
 export async function saveAgentSettings(agent: string, values: Values): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!AGENT_IDS.includes(agent as AgentId)) return { ok: false, error: "Unknown agent." };
   const main = providerChoice(values);
   if (typeof main === "string") return { ok: false, error: main };
@@ -247,6 +249,7 @@ export async function saveAgentSettings(agent: string, values: Values): Promise<
 // value back into the admin; the worker fetches them itself with get_agent_secrets().
 export async function setAgentSecret(name: string, value: string): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!isModeEnabled("cloud")) return { ok: false, error: COMING_LATER }; // keys are unused in the CLI-only version
   if (!isSecretName(name)) return { ok: false, error: "Unknown key." };
   const v = str(value);
@@ -260,6 +263,7 @@ export async function setAgentSecret(name: string, value: string): Promise<Actio
 // Admin -> worker request. Only the kinds the v1 worker handles can be queued from the UI.
 export async function queueCommand(kind: string, payload: Values = {}): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!V1_COMMANDS.includes(kind as CommandKind)) return { ok: false, error: "Unknown command." };
   let clean: Values = {};
   if (kind === "test_agent") {
@@ -307,6 +311,7 @@ export async function setJobStage(id: string, stage: "bid" | "skipped" | "shortl
 // Stop button: asks the worker to end a running Find jobs run (it checks every few seconds and kills the agent).
 export async function stopRun(id: string): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!UUID_RE.test(id)) return { ok: false, error: "Unknown run." };
   const supabase = await createClient();
   const { error } = await supabase.from("job_runs").update({ status: "stopping" }).eq("id", id).eq("status", "running");
@@ -318,6 +323,7 @@ export async function stopRun(id: string): Promise<ActionResult> {
 // next status, and only then is the worker command queued. The worker checks the status again before acting.
 
 async function queueUpwork(kind: "upwork_preview" | "upwork_confirm", actionId: string) {
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL } as ActionResult;
   const supabase = await createClient();
   const { error } = await supabase.from("commands").insert({ kind, payload: { action_id: actionId } as Json });
   revalidatePath("/upwork");
@@ -338,6 +344,7 @@ export async function saveReplyDraft(roomId: string, text: string): Promise<Acti
 // You pressed Send on a reply: the exact text is stored and the worker sends it (send_message has no Upwork preview).
 export async function sendReply(roomId: string, text: string): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   const message = text.trim();
   if (!message) return { ok: false, error: "The reply is empty." };
   if (message.length > MESSAGE_MAX) return { ok: false, error: `Too long (${MESSAGE_MAX} characters max).` };
@@ -374,6 +381,7 @@ export async function saveProfileAction(id: string, values: Values): Promise<Act
 // "Preview on Upwork": Upwork prepares the change and shows what it will do. Nothing changes yet.
 export async function previewProfileAction(id: string): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!UUID_RE.test(id)) return { ok: false, error: "Unknown update." };
   const supabase = await createClient();
   const { data: act } = await supabase.from("upwork_actions").select("status, kind").eq("id", id).maybeSingle();
@@ -385,6 +393,7 @@ export async function previewProfileAction(id: string): Promise<ActionResult> {
 // Confirm: applies the previewed change on Upwork. Only after a preview.
 export async function confirmProfileAction(id: string): Promise<ActionResult> {
   await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
   if (!UUID_RE.test(id)) return { ok: false, error: "Unknown update." };
   const supabase = await createClient();
   const { data, error } = await supabase.from("upwork_actions").update({ status: "confirming" })

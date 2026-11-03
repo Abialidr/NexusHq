@@ -45,7 +45,10 @@ export interface AgentConfig extends ProviderChoice {
   fallback?: ProviderChoice | null;
   // Set by the pipeline, never by the admin: lets this one call use an MCP server's listed tools ("agent mode").
   // Without it a CLI call runs with no MCP tools at all.
-  mcp?: { server: string; allow: readonly string[]; deny: readonly string[] } | null;
+  // `extra` adds more servers whose listed tools are allowed too (the scout uses Upwork plus NexusHQ's own server).
+  mcp?: { server: string; allow: readonly string[]; deny: readonly string[]; extra?: { server: string; allow: readonly string[] }[] } | null;
+  // Built-in CLI tools allowed for this call (Claude Code only, e.g. WebSearch for client checks).
+  builtinTools?: readonly string[];
 }
 
 export interface ModelInfo {

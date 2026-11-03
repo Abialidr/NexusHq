@@ -87,10 +87,15 @@ export const claudeCli: Adapter = {
     if (backend !== "login" && !cfg.model) throw new Error("Pick a model for Claude Code on this backend (the default there is Opus).");
     // Agent mode: the user-scope MCP servers load, but dontAsk refuses every tool not in --allowedTools, and the
     // write tools are named in --disallowedTools as well. Otherwise --strict-mcp-config: no MCP at all.
-    const tools = cfg.mcp
-      ? ["--allowedTools", cfg.mcp.allow.map((t) => claudeToolName(cfg.mcp!.server, t)).join(","),
-         "--disallowedTools", cfg.mcp.deny.map((t) => claudeToolName(cfg.mcp!.server, t)).join(",")]
-      : ["--strict-mcp-config"];
+    // Built-in tools (cfg.builtinTools, e.g. WebSearch) are allowed the same way, with or without MCP.
+    const allowed = [
+      ...(cfg.mcp ? [cfg.mcp, ...(cfg.mcp.extra ?? [])].flatMap((s) => s.allow.map((t) => claudeToolName(s.server, t))) : []),
+      ...(cfg.builtinTools ?? []),
+    ];
+    const tools = [
+      ...(allowed.length ? ["--allowedTools", allowed.join(",")] : []),
+      ...(cfg.mcp ? ["--disallowedTools", cfg.mcp.deny.map((t) => claudeToolName(cfg.mcp!.server, t)).join(",")] : ["--strict-mcp-config"]),
+    ];
     const args = [
       "-p", "--output-format", "json", "--json-schema", JSON.stringify(schema),
       "--permission-mode", "dontAsk", ...tools,
@@ -204,7 +209,7 @@ export const agyCli: Adapter = {
     if (!cmd) throw new Error("`agy` not found. See the setup steps for Antigravity CLI.");
     // Headless agy auto-denies every MCP tool without an allow rule (verified 1.4.6), so agent mode = allow rules for
     // exactly the listed tools; writes have none and stay denied.
-    if (cfg.mcp) ensureAgyAllowed(cfg.mcp.server, cfg.mcp.allow);
+    if (cfg.mcp) for (const s of [cfg.mcp, ...(cfg.mcp.extra ?? [])]) ensureAgyAllowed(s.server, s.allow);
     const args = [
       "-p", prompt, "--output-format", "json", "--json-schema", JSON.stringify(schema),
       "--disable-slash-commands", "--sandbox",

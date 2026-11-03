@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/Icon";
 import { useToast } from "@/components/ui";
+import { HOSTED } from "@/lib/hosted";
 import { queueCommand, saveDraft, setJobStage, stopRun } from "@/app/actions";
 import { JOB_STAGE_LABEL, type JobAssessment, type JobDetail, type JobDraft, type JobStage, type JobSummary, type SuggestedBid } from "@nexushq/shared";
 
@@ -105,21 +106,23 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
           <div className="kicker">Upwork cockpit</div><h1>Job radar</h1>
           <p>Find jobs that fit your profile, see why each one was kept or dropped, and read the drafts. You bid on Upwork yourself.</p>
         </div>
-        <div className="actions">
+        {!HOSTED && <div className="actions">
           <input className="input" style={{ minWidth: 220 }} placeholder="Focus (optional), e.g. Next.js dashboards" value={focus}
             onChange={(e) => setFocus(e.target.value)} disabled={running} />
           <button className="btn primary" onClick={findJobs} disabled={!online || running || busy || needsMigration}
             title={!online ? "The worker is offline" : running ? "A run is in progress" : ""}>
             <Icon name="search" /> {running ? "Finding jobs…" : "Find jobs"}
           </button>
-        </div>
+        </div>}
       </div>
 
       {needsMigration && (
         <div className="notice"><Icon name="info" /><div>The Job radar needs new database migrations. Open <a href="/setup">Setup</a>, add a Supabase access token and press Finish.</div></div>
       )}
       {!online && !needsMigration && (
-        <div className="notice"><Icon name="info" /><div>The worker is offline. Start it with <code className="mono">yarn dev</code> to find jobs.</div></div>
+        <div className="notice"><Icon name="info" /><div>{HOSTED
+          ? "The worker on your PC is offline, so no run is in progress."
+          : <>The worker is offline. Start it with <code className="mono">yarn dev</code> to find jobs.</>}</div></div>
       )}
 
       {run && (
@@ -128,7 +131,7 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
             <span className={`chip ${run.status === "done" ? "pub" : run.status === "error" ? "draft" : run.status === "stopped" ? "hidden" : "pending"}`}>
               {RUN_LABEL[run.status]}
             </span>
-            {run.status === "running" && (
+            {run.status === "running" && !HOSTED && (
               <button className="btn sm ghost" disabled={busy} onClick={stop} title="Ends the agent that's running now; jobs not checked yet are marked as such">
                 <Icon name="x" /> Stop
               </button>
@@ -191,9 +194,9 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
                       {j.stage !== "bid" && <button className="btn sm primary" disabled={busy} onClick={() => mark(j.id, "bid", "Marked as bid")}>I bid on this</button>}
                       {j.stage !== "skipped" && <button className="btn sm ghost" disabled={busy} onClick={() => mark(j.id, "skipped", "Skipped")}>Skip</button>}
                       {(j.stage === "skipped" || j.stage === "bid") && <button className="btn sm ghost" disabled={busy} onClick={() => mark(j.id, "shortlisted", "Back on the shortlist")}>Back to shortlist</button>}
-                      <button className="btn sm ghost" disabled={busy || drafting || !online} onClick={() => draft(j.id)}>
+                      {!HOSTED && <button className="btn sm ghost" disabled={busy || drafting || !online} onClick={() => draft(j.id)}>
                         {drafting ? "Writing…" : j.draft ? "Rewrite draft" : "Draft this anyway"}
-                      </button>
+                      </button>}
                     </div>
 
                     <AssessmentView job={j} />

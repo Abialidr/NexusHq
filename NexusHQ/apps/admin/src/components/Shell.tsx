@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { ToastProvider } from "@/components/ui";
+import { HOSTED } from "@/lib/hosted";
 import { NAV } from "@/lib/sections";
 import { publicConfig } from "@/lib/publicConfig";
 import { signOut } from "@/app/actions";
@@ -55,7 +56,7 @@ export default function Shell({ email, badges, children }: { email: string; badg
                     <Icon name={g.icon} />{g.group}<Icon name="chev" className="i chev" />
                   </button>
                   <div className="nav-items"><div>
-                    {g.items.map(([k, l]) => (
+                    {g.items.filter(([k]) => !(HOSTED && k === "agents")).map(([k, l]) => (
                       <Link key={k} className="nav-link" href={`/${k}`} aria-current={seg === k ? "page" : undefined} tabIndex={isOpen ? 0 : -1}>
                         {l}{badges[k] ? <span className="dot">{badges[k]}</span> : null}
                       </Link>

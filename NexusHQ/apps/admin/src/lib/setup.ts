@@ -131,7 +131,7 @@ async function schemaLooksInstalled(c: Connection): Promise<boolean> {
 async function newestSchemaInstalled(c: Connection): Promise<boolean> {
   const db = adminClient(c);
   // A normal GET, not head: a HEAD error response has no body, so the error code and message would be empty.
-  const { error } = await db.from("upwork_actions").select("id").limit(1);
+  const { error } = await db.from("search_scratchpad").select("day").limit(1);
   if (error) {
     if (error.code === "PGRST205" || error.code === "42P01" || error.code === "42703") return false;
     throw new Error(`Checking the database failed: ${error.message}`);
