@@ -303,6 +303,45 @@ tr:hover .row-actions { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
+/* ---------- mobile fixes: nothing may push the page wider than the screen ---------- */
+html, body { max-width: 100%; overflow-x: hidden; }
+.app { grid-template-columns: 264px minmax(0, 1fr); }
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { height: 100dvh; }
+  .crumbs { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .page-head { align-items: flex-start; }
+  .page-head h1 { font-size: 24px; }
+  .page-head .actions { margin-left: 0; width: 100%; }
+  .stats { gap: 10px; }
+  .stat { padding: 14px; }
+  .stat b { font-size: 24px; }
+  .card { min-width: 0; }
+  /* wide tables scroll sideways inside their card instead of stretching the page */
+  .card:has(table) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .card:has(table) table { min-width: 560px; }
+  th, td { padding: 10px 12px; }
+  .card-head, .toolbar { padding: 12px; }
+  .card-head { flex-wrap: wrap; }
+  .tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .tabs button { white-space: nowrap; }
+  .t-grid, .gallery { padding: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+  .drawer { width: 100vw; }
+  .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
+  .drawer-foot { flex-wrap: wrap; }
+  .feed li, .req-list li, .cmd-list li { padding-left: 14px; padding-right: 14px; }
+  .linkbox { flex-wrap: wrap; }
+  .toast { max-width: calc(100vw - 32px); text-align: center; }
+}
+@media (max-width: 520px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .section-tiles { grid-template-columns: 1fr 1fr; }
+  .btn { padding: 8px 13px; }
+  .fieldset { padding: 12px; }
+  .repeat-row { flex-wrap: wrap; }
+  .top { gap: 8px; }
+}
+
 /* ---------- app additions (beyond the static mockup) ---------- */
 /* Font families come from the Google Fonts stylesheet linked in app/layout.tsx. */
 :root { --font-display: "Bricolage Grotesque"; --font-sans: "Instrument Sans"; --font-mono: "JetBrains Mono"; }

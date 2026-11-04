@@ -103,6 +103,7 @@ export const claudeCli: Adapter = {
       // the empty temp cwd for isolation instead.
       ...(backend === "login" ? [] : ["--bare"]),
       ...(cfg.model ? ["--model", cfg.model] : []),
+      ...(cfg.options?.effort ? ["--effort", String(cfg.options.effort)] : []), // low | medium | high | xhigh | max
     ];
     const r = await inTempDir((cwd) => run(need("claude"), args, { input: prompt, timeoutMs: timeoutOf(cfg), env: claudeEnv(backend), cwd, signal: opts.signal }));
     let out: { is_error?: boolean; result?: string; structured_output?: unknown; total_cost_usd?: number; usage?: { input_tokens?: number; output_tokens?: number } };
@@ -138,6 +139,8 @@ export const codexCli: Adapter = {
         "exec", "--json", "--output-schema", schemaFile, "-o", outFile,
         "--sandbox", "read-only", "--skip-git-repo-check", "--ephemeral", "--ignore-user-config",
         ...(cfg.model ? ["-m", cfg.model] : []), // [TEST] model flag
+        // --ignore-user-config skips ~/.codex/config.toml, so the reasoning effort has to be passed explicitly
+        ...(cfg.options?.effort ? ["-c", `model_reasoning_effort="${String(cfg.options.effort)}"`] : []),
         "-", // prompt from stdin
       ];
       const r = await run(need("codex"), args, { input: prompt, timeoutMs: timeoutOf(cfg), env, cwd, signal: opts.signal });

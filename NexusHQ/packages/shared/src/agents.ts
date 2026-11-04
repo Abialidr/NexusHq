@@ -15,6 +15,7 @@ export interface AgentOptions {
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
+  effort?: "low" | "medium" | "high" | "xhigh" | "max"; // Claude Code / Codex CLI only: thinking effort passed to the CLI
   dailyCap?: number;
   maxListings?: number;      // Search agent: listings to collect per Find jobs run (LISTINGS_LIMITS)
   shortlistPercent?: number; // Filter & rank agent: % of collected listings to shortlist and draft (SHORTLIST_LIMITS)
