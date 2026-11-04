@@ -2920,9 +2920,23 @@ void main(){
       if (!st) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
       return st.portrait ? [e.clientY / st.s, (st.vw - e.clientX) / st.s] : [e.clientX / st.s, e.clientY / st.s];
     };
-    const onDown = (e) => { try { cv.focus({ preventScroll: true }); } catch (er) {} const q = rel(e); drag = { x: q[0], y: q[1], yaw: cam.yaw, pitch: cam.pitch }; moved = false; try { cv.setPointerCapture(e.pointerId); } catch (er) {} };
+    // pinch-to-zoom: track active touch pointers; two fingers change the field of view
+    const touches = new Map();
+    let pinch = null;
+    const pinchDist = () => { const p = [...touches.values()]; return Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]) || 1; };
+    const onDown = (e) => {
+      try { cv.focus({ preventScroll: true }); } catch (er) {}
+      const q = rel(e);
+      if (e.pointerType === 'touch') touches.set(e.pointerId, q);
+      try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+      if (touches.size === 2) { pinch = { d: pinchDist(), fov: cam.fovT }; drag = null; moved = true; if (self.state.tip) self.setState({ tip: '' }); return; }
+      if (pinch) return;
+      drag = { x: q[0], y: q[1], yaw: cam.yaw, pitch: cam.pitch }; moved = false;
+    };
     const onMove = (e) => {
       const q = rel(e);
+      if (touches.has(e.pointerId)) touches.set(e.pointerId, q);
+      if (pinch) { if (touches.size >= 2) cam.fovT = clamp(pinch.fov * pinch.d / pinchDist(), 24, 72); return; }
       cam.mx = q[0] / W * 2 - 1; cam.my = q[1] / Hh * 2 - 1;
       if (drag) {
         const dx = q[0] - drag.x, dy = q[1] - drag.y;
@@ -2936,6 +2950,8 @@ void main(){
       else if (self.state.tip || self.state.cursor !== 'grab') self.setState({ cursor: 'grab', tip: '' });
     };
     const onUp = (e) => {
+      touches.delete(e.pointerId);
+      if (pinch) { if (touches.size === 0) { pinch = null; self.setState({ cursor: 'grab' }); } return; }
       if (!drag) return;
       const q = rel(e); drag = null;
       if (!moved) { const pk = pickAt(q[0], q[1]); if (pk) { if (pk.act) pk.act(); else go(pk.zone); } }
@@ -2945,6 +2961,8 @@ void main(){
     const onWheel = (e) => { e.preventDefault(); cam.fovT = clamp(cam.fovT + (e.deltaY > 0 ? 4 : -4), 24, 72); };
     cv.addEventListener('pointerdown', onDown); cv.addEventListener('pointermove', onMove); cv.addEventListener('pointerup', onUp);
     cv.addEventListener('pointerleave', onLeave); cv.addEventListener('wheel', onWheel, { passive: false });
+    cv.addEventListener('pointercancel', onUp);
+    cv.style.touchAction = 'none'; // stop the browser's own pinch/scroll so our gesture gets the touches
 
     // ---------- update ----------
     const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -3130,7 +3148,7 @@ void main(){
       destroy: () => {
         dead = true; cancelAnimationFrame(raf);
         cv.removeEventListener('pointerdown', onDown); cv.removeEventListener('pointermove', onMove); cv.removeEventListener('pointerup', onUp);
-        cv.removeEventListener('pointerleave', onLeave); cv.removeEventListener('wheel', onWheel);
+        cv.removeEventListener('pointerleave', onLeave); cv.removeEventListener('wheel', onWheel); cv.removeEventListener('pointercancel', onUp);
       }
     };
   }
