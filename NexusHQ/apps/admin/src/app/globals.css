@@ -305,6 +305,21 @@ tr:hover .row-actions { opacity: 1; }
 
 /* ---------- mobile fixes: nothing may push the page wider than the screen ---------- */
 html, body { max-width: 100%; overflow-x: hidden; }
+/* grid/flex children and form blocks may shrink below their content, otherwise they push the layout sideways */
+.grid > *, .two > *, .main, .content, fieldset, .fieldset, .fields, .field, .card-pad, .card-head > * { min-width: 0; }
+.two { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 860px) {
+  .side { box-shadow: none; }                      /* the off-screen sidebar's shadow was bleeding onto the page edges */
+  body.nav-open .side { box-shadow: var(--shadow-lg); }
+  .job-row { flex-wrap: wrap; }
+  .job-row > span:nth-child(2) { flex: 1 1 calc(100% - 70px); }
+  .job-row .job-chips { flex: 1 1 100%; justify-content: flex-start !important; }
+}
+@media (max-width: 1000px) {
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .app { grid-template-columns: 264px minmax(0, 1fr); }
 @media (max-width: 860px) {
   .app { grid-template-columns: minmax(0, 1fr); }

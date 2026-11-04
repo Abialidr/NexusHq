@@ -167,7 +167,7 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
             const d = j.detail;
             return (
               <div key={j.id} className="card">
-                <button className="row-flex" style={{ width: "100%", padding: "14px 18px", textAlign: "left", gap: 12, alignItems: "flex-start" }}
+                <button className="row-flex job-row" style={{ width: "100%", padding: "14px 18px", textAlign: "left", gap: 12, alignItems: "flex-start" }}
                   onClick={() => setOpen(isOpen ? null : j.id)} aria-expanded={isOpen}>
                   {j.score != null && <span className="chip pub plain" style={{ minWidth: 42, justifyContent: "center" }} title="Fit score">{j.score}</span>}
                   <span style={{ flex: 1, minWidth: 0 }}>
@@ -177,7 +177,7 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
                     </span>
                     {j.reason && <span style={{ display: "block", fontSize: 13, marginTop: 4 }}>{j.reason}</span>}
                   </span>
-                  <span className="row-flex" style={{ gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <span className="row-flex job-chips" style={{ gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {j.assessment?.win_chance != null && <span className="chip pending plain" title="Estimated chance of winning">Win {j.assessment.win_chance}%</span>}
                     {j.suggested_bid && <span className="chip label plain" title={j.suggested_bid.reason}>Bid {bidText(j.suggested_bid)}</span>}
                     {j.draft && <span className="chip pub plain">Draft</span>}
