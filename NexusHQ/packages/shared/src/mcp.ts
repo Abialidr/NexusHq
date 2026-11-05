@@ -35,11 +35,11 @@ export const UPWORK_READ_TOOLS = ["list_accounts", "get_tool_help", "find_jobs",
 // The Upwork inbox and Profile sync agents also read messages, the dashboard, offers and contracts. Still read-only.
 export const UPWORK_ACTIVITY_TOOLS = [
   "list_accounts", "get_tool_help", "get_profile", "list_freelancer_proposals", "get_messages", "get_freelancer_dashboard",
-  "list_offers", "list_contracts",
+  "list_offers", "list_contracts", "find_jobs",
 ] as const;
 // The only write tools the worker ever allows, each alone in a call that runs after you press Confirm in the admin:
 // update_profile only creates a preview; confirm_preview runs exactly that stored preview; send_message sends your text.
-export const UPWORK_CONFIRMED_TOOLS = ["update_profile", "confirm_preview", "send_message"] as const;
+export const UPWORK_CONFIRMED_TOOLS = ["update_profile", "confirm_preview", "send_message", "manage_proposals"] as const;
 export const UPWORK_WRITE_TOOLS = [
   "confirm_preview", "confirm_draft", "manage_proposals", "send_message", "respond_to_offer", "set_tool_permission",
   "set_tool_mode", "update_profile", "boost_profile", "save_job", "manage_meetings", "submit_milestones",

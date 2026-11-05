@@ -224,7 +224,8 @@ const PREVIEW_SCHEMA = obj({ preview_id: str, params_sent: str, preview_text: st
 // "Preview on Upwork": update_profile only creates a preview (Upwork keeps it server-side); nothing changes yet.
 export async function previewAction(supabase: SupabaseClient, id: string) {
   const act = await loadAction(supabase, id);
-  if (act.kind !== "profile_update" || !isProfileAction(act.action)) throw new Error("Only profile updates have an Upwork preview.");
+  if (act.kind === "invitation") return previewInvitation(supabase, act);
+  if (act.kind !== "profile_update" || !isProfileAction(act.action)) throw new Error("Only profile updates and invitations have an Upwork preview.");
   if (!["draft", "preview_ready", "error"].includes(act.status)) throw new Error(`This update is ${act.status}.`);
   const bad = checkProfileParams(act.action, act.params);
   if (bad) throw new Error(bad);
@@ -251,6 +252,116 @@ the preview says will change (as returned), warnings = any rejected values or no
   }
 }
 
+// ---------------------------------------------------------------------------------------------------------
+// Invitations: draft a reply, preview accept / decline on Upwork, then Confirm (same flow as profile updates)
+// ---------------------------------------------------------------------------------------------------------
+
+type Invitation = { id?: string; job_id?: string; job_title?: string; client?: string; note?: string };
+const INVITE_DRAFT_SCHEMA = obj({ cover_letter: str, bid: str, notes: str, answers: arr(obj({ question: str, answer: str })) });
+const INVITE_CONFIRM_TYPE: Record<string, string> = { accept: "proposal_accept_invitation", decline: "proposal_decline_invitation" };
+
+// "Draft reply" on an invitation: reads the invited job and writes a cover letter, a bid and answers to the screening
+// questions from your profile. Read-only: it stores a draft action; nothing is sent or accepted.
+export async function draftInvitation(supabase: SupabaseClient, invitationId: string) {
+  const { data: snap } = await supabase.from("upwork_snapshots").select("data").eq("kind", "invitations").maybeSingle();
+  const inv = ((snap?.data ?? []) as Invitation[]).find((x) => x.id === invitationId);
+  if (!inv?.job_id) throw new Error("That invitation isn't in the last Upwork check. Press Check Upwork first.");
+  const cfg = await upworkCfg(supabase, "inbox");
+  const profile = await loadProfileBrief(supabase);
+  const prompt = `You write a reply for a freelancer who was invited to a job on Upwork. Use only the Upwork tools available to you;
+they are read-only. ${TOOLS_ONLY}
+1. Call list_accounts (Freelancer org_uid).
+2. Call find_jobs action "get" with params {"id": "${inv.job_id}"}: read the description, budget and screening_questions.
+3. Write the proposal the freelancer would submit when accepting the invitation (client: ${inv.client ?? ""}):
+   - cover_letter: max 4500 characters, first person, specific to THIS job, built ONLY from the freelancer profile below
+     (real projects and skills; never invent facts, clients or numbers). If client_feedback names a contact, greet them by name.
+   - bid: the hourly rate (e.g. "35") or fixed price as a plain number string, inside the job's budget when it has one; "" if unclear.
+   - answers: one entry per screening question, using the question text exactly; [] when there are none.
+   - notes: one or two sentences for the freelancer (e.g. what to double-check, or why you would skip this job).
+${UNTRUSTED}
+
+${profile}`;
+  const r = (await runAgent<{ cover_letter: string; bid: string; notes: string; answers: { question: string; answer: string }[] }>(
+    cfg, withRules(prompt, cfg), INVITE_DRAFT_SCHEMA)).data;
+  if (!r.cover_letter.trim()) throw new Error("The agent returned no cover letter. Try again.");
+  // A new draft replaces an older unsent one for the same invitation.
+  await supabase.from("upwork_actions").update({ status: "cancelled" })
+    .eq("kind", "invitation").eq("params->>invitation_uid", invitationId).in("status", ["draft", "preview_ready", "error"]);
+  const { error } = await supabase.from("upwork_actions").insert({
+    kind: "invitation", action: "accept", label: inv.job_title || "Invitation", reason: r.notes, current: inv.note ?? "", status: "draft",
+    params: { invitation_uid: invitationId, job_id: inv.job_id, client: inv.client ?? "", cover_letter: r.cover_letter.slice(0, 5000), bid: r.bid, answers: r.answers },
+  });
+  if (error) throw new Error(`Saving the draft failed: ${error.message}`);
+  return { drafted: true, chars: r.cover_letter.length, answers: r.answers.length };
+}
+
+// The manage_proposals call for one invitation action. Decline sends no message (a message needs a canned reason id).
+function inviteCall(act: UpworkAction) {
+  const p = act.params, uid = String(p.invitation_uid ?? "");
+  if (act.action === "decline") return { action: "decline_invitation", params: { invitation_uid: uid } as Record<string, unknown> };
+  const bid = Number.parseFloat(String(p.bid ?? ""));
+  const answers = Array.isArray(p.answers) ? (p.answers as { question: string; answer: string }[]).filter((a) => a.question && a.answer?.trim()) : [];
+  return {
+    action: "accept_invitation",
+    params: { invitation_uid: uid, cover_letter: String(p.cover_letter ?? ""), ...(Number.isFinite(bid) && bid > 0 ? { bid } : {}), ...(answers.length ? { answers } : {}) } as Record<string, unknown>,
+  };
+}
+
+async function previewInvitation(supabase: SupabaseClient, act: UpworkAction) {
+  if (!["draft", "preview_ready", "error"].includes(act.status)) throw new Error(`This invitation reply is ${act.status}.`);
+  const call = inviteCall(act);
+  if (!call.params.invitation_uid) throw new Error("Missing invitation id.");
+  if (act.action === "accept" && !String(call.params.cover_letter).trim()) throw new Error("Write a cover letter first.");
+  await setAction(supabase, act.id, { status: "previewing", error: null });
+  try {
+    const cfg = await upworkCfg(supabase, "inbox", "manage_proposals");
+    const prompt = `You prepare a PREVIEW for a freelancer who pressed the button in their admin panel.
+${TOOLS_ONLY}
+1. Call list_accounts (Freelancer org_uid).
+2. Call manage_proposals with action "${call.action}" and params EXACTLY ${JSON.stringify(call.params)} (no other changes).
+   This only creates a preview; nothing is submitted or declined yet. Do NOT call confirm_preview or anything else. Do not
+   attach files and do not boost: go on without them.
+Return preview_id from the response, params_sent = the params object you passed as compact JSON, preview_text = what the
+preview says will happen (include the Connects cost and balance when shown), warnings = any problems or notes from Upwork.`;
+    const r = (await runAgent<{ preview_id: string; params_sent: string; preview_text: string; warnings: string[] }>(cfg, prompt, PREVIEW_SCHEMA)).data;
+    let sent: Record<string, unknown> | null = null;
+    try { sent = JSON.parse(r.params_sent); } catch { /* checked below */ }
+    if (!r.preview_id) throw new Error(`Upwork returned no preview. ${r.warnings.join(" ")}`.trim());
+    const sameLetter = act.action !== "accept" || norm(String(sent?.cover_letter ?? "")) === norm(String(call.params.cover_letter));
+    if (!sent || sent.invitation_uid !== call.params.invitation_uid || !sameLetter) throw new Error("The preview was made with different values than yours, so it was not kept. Try again.");
+    await setAction(supabase, act.id, { status: "preview_ready", preview_id: r.preview_id, preview: { text: r.preview_text, warnings: r.warnings } });
+    return { preview_id: r.preview_id };
+  } catch (e) {
+    await setAction(supabase, act.id, { status: "error", error: (e as Error).message.slice(0, 1000) });
+    throw e;
+  }
+}
+
+async function confirmInvitation(supabase: SupabaseClient, act: UpworkAction) {
+  try {
+    const type = INVITE_CONFIRM_TYPE[act.action];
+    if (!act.preview_id || !type) throw new Error("Make a preview first.");
+    const cfg = await upworkCfg(supabase, "inbox", "confirm_preview");
+    const prompt = `The freelancer reviewed this Upwork preview in their admin panel and pressed Confirm, which is their explicit
+approval. ${TOOLS_ONLY}
+1. Call list_accounts (Freelancer org_uid).
+2. Call confirm_preview with action "confirm" and params {"type": "${type}", "preview_id": "${act.preview_id}"}.
+   Call nothing else. Return ok = whether Upwork reported success, detail = Upwork's response in one or two sentences.`;
+    const r = (await runAgent<{ ok: boolean; detail: string }>(cfg, prompt, CONFIRM_SCHEMA)).data;
+    if (!r.ok) throw new Error(`Upwork didn't do it: ${r.detail}`);
+    await setAction(supabase, act.id, { status: "done", result: r });
+    // The invitation is answered: drop it from the saved list until the next Check Upwork.
+    const { data: snap } = await supabase.from("upwork_snapshots").select("data").eq("kind", "invitations").maybeSingle();
+    if (Array.isArray(snap?.data)) {
+      await supabase.from("upwork_snapshots").update({ data: (snap.data as Invitation[]).filter((x) => x.id !== act.params.invitation_uid) }).eq("kind", "invitations");
+    }
+    return r;
+  } catch (e) {
+    await setAction(supabase, act.id, { status: "error", error: (e as Error).message.slice(0, 1000) });
+    throw e;
+  }
+}
+
 const CONFIRM_SCHEMA = obj({ ok: bool, detail: str });
 const SEND_SCHEMA = obj({ ok: bool, detail: str, newest_own_message: str });
 
@@ -259,6 +370,7 @@ const SEND_SCHEMA = obj({ ok: bool, detail: str, newest_own_message: str });
 export async function confirmAction(supabase: SupabaseClient, id: string) {
   const act = await loadAction(supabase, id);
   if (act.status !== "confirming") throw new Error(`This update is ${act.status}; press Confirm in the admin first.`);
+  if (act.kind === "invitation") return confirmInvitation(supabase, act);
   try {
     if (act.kind === "profile_update") {
       if (!act.preview_id || !CONFIRM_TYPE[act.action]) throw new Error("Make a preview first.");

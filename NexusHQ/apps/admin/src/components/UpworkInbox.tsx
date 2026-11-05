@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import Icon from "@/components/Icon";
 import { useToast } from "@/components/ui";
 import {
-  addSkillToGroup, cancelUpworkAction, confirmProfileAction, previewProfileAction, queueCommand, saveProfileAction, saveReplyDraft, sendReply,
+  addSkillToGroup, cancelUpworkAction, confirmProfileAction, previewProfileAction, queueCommand, saveInvitationDraft, saveProfileAction,
+  saveReplyDraft, sendReply, startDeclineInvitation,
 } from "@/app/actions";
 import { AVAILABILITY, MESSAGE_MAX, PROFILE_ACTIONS, type ActionStatus, type ProfileAction, type UpworkAction, type UpworkRoom } from "@nexushq/shared";
 
@@ -119,7 +120,7 @@ export default function UpworkInbox({ snapshots, rooms, actions, pending, online
       </div>
 
       {tab === "messages" && <Messages rooms={rooms} actions={actions} online={online} />}
-      {tab === "proposals" && <Proposals snapshots={snapshots} />}
+      {tab === "proposals" && <Proposals snapshots={snapshots} actions={actions} pending={pending} online={online} />}
       {tab === "deals" && <Deals snapshots={snapshots} />}
       {tab === "profile" && <ProfileSync snapshot={snapshots.profile} actions={profileActions} pending={pending} online={online} />}
       {tab === "skills" && <SkillsToAdd skills={skills} />}
@@ -218,9 +219,9 @@ function Rows({ title, rows, cols, empty }: { title: string; rows: Record<string
       <b>{title}</b>
       {rows.length ? (
         <div style={{ overflowX: "auto", marginTop: 8 }}>
-          <table className="table" style={{ width: "100%", fontSize: 14 }}>
+          <table className="table stack" style={{ width: "100%", fontSize: 14 }}>
             <thead><tr>{cols.map(([, label]) => <th key={label} style={{ textAlign: "left" }}>{label}</th>)}</tr></thead>
-            <tbody>{rows.map((r, i) => <tr key={i}>{cols.map(([k]) => <td key={k}>{typeof r[k] === "boolean" ? (r[k] ? "Yes" : "No") : txt(r[k])}</td>)}</tr>)}</tbody>
+            <tbody>{rows.map((r, i) => <tr key={i}>{cols.map(([k, label]) => <td key={k} data-label={label}>{typeof r[k] === "boolean" ? (r[k] ? "Yes" : "No") : txt(r[k])}</td>)}</tr>)}</tbody>
           </table>
         </div>
       ) : <p className="faint" style={{ margin: "6px 0 0" }}>{empty}</p>}
@@ -228,15 +229,160 @@ function Rows({ title, rows, cols, empty }: { title: string; rows: Record<string
   );
 }
 
-function Proposals({ snapshots }: { snapshots: Record<string, Snapshot> }) {
+type Run = (fn: () => Promise<{ ok: boolean; error?: string }>, done: string) => void;
+function useRun(): { busy: boolean; go: Run } {
+  const router = useRouter();
+  const toast = useToast();
+  const [busy, start] = useTransition();
+  const go: Run = (fn, done) => start(async () => {
+    const r = await fn();
+    if (r.ok) { toast(done); router.refresh(); } else toast(r.error ?? "Failed");
+  });
+  return { busy, go };
+}
+
+function Proposals({ snapshots, actions, pending, online }: { snapshots: Record<string, Snapshot>; actions: UpworkAction[]; pending: Pending[]; online: boolean }) {
+  const invites = list(snapshots.invitations);
   return (
     <>
-      <Rows title="Invitations" rows={list(snapshots.invitations)} empty="No pending invitations."
-        cols={[["job_title", "Job"], ["client", "Client"], ["note", "Note"], ["created", "Received"]]} />
+      <div className="card card-pad" style={{ marginBottom: 12 }}>
+        <b>Invitations</b>
+        {invites.length === 0 ? <p className="faint" style={{ margin: "6px 0 0" }}>No pending invitations.</p> : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 10 }}>
+            {invites.map((inv) => (
+              <Invitation key={txt(inv.id) || txt(inv.job_id)} inv={inv} online={online} pending={pending}
+                acts={actions.filter((a) => a.kind === "invitation" && txt(a.params.invitation_uid) === txt(inv.id))} />
+            ))}
+          </div>
+        )}
+      </div>
       <Rows title="Your recent proposals" rows={list(snapshots.proposals)} empty="No submitted proposals found."
         cols={[["job_title", "Job"], ["status_label", "Status"], ["viewed_by_client", "Client viewed"], ["bid", "Bid"], ["created", "Sent"]]} />
-      <p className="faint" style={{ fontSize: 13 }}>Answer invitations and submit proposals on upwork.com; the Job radar drafts the cover letter.</p>
+      <p className="faint" style={{ fontSize: 13 }}>Invitations: Draft reply writes a cover letter, bid and answers for you to edit, then Preview on Upwork and Confirm. Nothing is sent until you press Confirm. New jobs to bid on come from the Job radar.</p>
     </>
+  );
+}
+
+// One invitation: Draft reply (AI writes the cover letter, bid and answers), or Decline. Either way Upwork only changes
+// after "Preview on Upwork" and then Confirm.
+function Invitation({ inv, acts, pending, online }: { inv: Record<string, unknown>; acts: UpworkAction[]; pending: Pending[]; online: boolean }) {
+  const { busy, go } = useRun();
+  const id = txt(inv.id);
+  const drafting = pending.some((p) => p.kind === "invitation_draft" && p.payload.invitation_id === id);
+  const queued = (a: UpworkAction) => pending.some((p) => p.payload.action_id === a.id);
+  const reply = acts.find((a) => a.action === "accept" && a.status !== "done");
+  const decline = acts.find((a) => a.action === "decline" && a.status !== "done");
+  const done = acts.find((a) => a.status === "done");
+  const working = drafting || busy || [reply, decline].some((a) => a && (queued(a) || a.status === "previewing" || a.status === "confirming"));
+  return (
+    <div className="fieldset" style={{ gap: 10 }}>
+      <div>
+        <b>{txt(inv.job_title) || "(untitled job)"}</b>
+        <div className="faint" style={{ fontSize: 13 }}>{txt(inv.client)}{txt(inv.created) ? ` · received ${txt(inv.created)}` : ""}</div>
+      </div>
+      {txt(inv.note) && <p className="muted" style={{ margin: 0, fontSize: 14 }}>{txt(inv.note)}</p>}
+      {done ? (
+        <p style={{ margin: 0 }}><span className="chip pub plain">{done.action === "decline" ? "Declined on Upwork" : "Accepted: proposal sent"}</span></p>
+      ) : (
+        <div className="row-flex" style={{ gap: 8, flexWrap: "wrap" }}>
+          <button className="btn sm primary" disabled={working || !online}
+            onClick={() => go(() => queueCommand("invitation_draft", { invitation_id: id }), "Writing a reply… this takes a minute")}>
+            <Icon name="mail" /> {drafting ? "Writing reply…" : reply ? "Redraft reply" : "Draft reply"}
+          </button>
+          {!decline && (
+            <button className="btn sm ghost" disabled={working || !online}
+              onClick={() => go(() => startDeclineInvitation(id, txt(inv.job_title), txt(inv.client)), "Decline prepared: preview it on Upwork next")}>
+              Decline
+            </button>
+          )}
+        </div>
+      )}
+      {reply && <InviteReply key={`${reply.id}-${reply.updated_at}`} act={reply} online={online} queued={queued(reply)} />}
+      {decline && <InviteDecline act={decline} online={online} queued={queued(decline)} />}
+    </div>
+  );
+}
+
+function InviteSteps({ act, online, queued, dirty, onSave }: { act: UpworkAction; online: boolean; queued: boolean; dirty?: boolean; onSave?: () => void }) {
+  const { busy, go } = useRun();
+  const working = queued || act.status === "previewing" || act.status === "confirming";
+  const accept = act.action === "accept";
+  const preview = act.preview as { text?: string; warnings?: string[] } | null;
+  return (
+    <>
+      {act.status === "error" && <p className="err" style={{ margin: 0 }}>{act.error}</p>}
+      {act.status === "preview_ready" && preview && (
+        <fieldset className="fieldset">
+          <legend>Upwork&rsquo;s preview</legend>
+          <p style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: 14 }}>{preview.text || "(Upwork returned no preview text)"}</p>
+          {preview.warnings?.length ? <p className="err" style={{ margin: "6px 0 0" }}>{preview.warnings.join(" ")}</p> : null}
+          <p className="faint" style={{ margin: "6px 0 0", fontSize: 13 }}>
+            {accept ? "Confirm sends this proposal to the client and spends Connects." : "Confirm declines the invitation and tells the client."}
+          </p>
+        </fieldset>
+      )}
+      <div className="row-flex" style={{ gap: 8, flexWrap: "wrap" }}>
+        <span className={`chip ${STATUS_CHIP[act.status]} plain`}>{queued && act.status === "draft" ? "Queued…" : STATUS_LABEL[act.status]}</span>
+        {dirty && <button className="btn sm" disabled={busy || working} onClick={onSave}>Save changes</button>}
+        {!dirty && act.status !== "preview_ready" && (
+          <button className="btn sm primary" disabled={busy || working || !online} onClick={() => go(() => previewProfileAction(act.id), "Asking Upwork for a preview…")}>
+            <Icon name="eye" /> Preview on Upwork
+          </button>
+        )}
+        {!dirty && act.status === "preview_ready" && (
+          <button className="btn sm primary" disabled={busy || working || !online} onClick={() => go(() => confirmProfileAction(act.id), accept ? "Sending your proposal…" : "Declining…")}>
+            <Icon name="check" /> {accept ? "Confirm: accept and send proposal" : "Confirm: decline invitation"}
+          </button>
+        )}
+        <button className="btn sm ghost" disabled={busy || working} onClick={() => go(() => cancelUpworkAction(act.id), "Dismissed")}>Dismiss</button>
+      </div>
+    </>
+  );
+}
+
+function InviteReply({ act, online, queued }: { act: UpworkAction; online: boolean; queued: boolean }) {
+  const { busy, go } = useRun();
+  const saved = {
+    letter: txt(act.params.cover_letter), bid: txt(act.params.bid),
+    answers: Array.isArray(act.params.answers) ? (act.params.answers as { question: string; answer: string }[]) : [],
+  };
+  const [letter, setLetter] = useState(saved.letter);
+  const [bid, setBid] = useState(saved.bid);
+  const [answers, setAnswers] = useState(saved.answers);
+  const dirty = letter !== saved.letter || bid !== saved.bid || JSON.stringify(answers) !== JSON.stringify(saved.answers);
+  const locked = queued || act.status === "previewing" || act.status === "confirming";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {act.reason && <p className="muted" style={{ margin: 0, fontSize: 13 }}><b>Note from the agent:</b> {act.reason}</p>}
+      <div className="field full">
+        <label htmlFor={`cl-${act.id}`}>Cover letter · {letter.length}/5000</label>
+        <textarea id={`cl-${act.id}`} rows={10} value={letter} disabled={locked} onChange={(e) => setLetter(e.target.value)} />
+      </div>
+      <div className="field">
+        <label htmlFor={`bid-${act.id}`}>Your bid (hourly rate or fixed price)</label>
+        <input id={`bid-${act.id}`} inputMode="decimal" value={bid} disabled={locked} onChange={(e) => setBid(e.target.value)} placeholder="e.g. 35" />
+      </div>
+      {answers.map((a, i) => (
+        <div className="field full" key={i}>
+          <label htmlFor={`an-${act.id}-${i}`}>{a.question}</label>
+          <textarea id={`an-${act.id}-${i}`} rows={3} value={a.answer} disabled={locked}
+            onChange={(e) => setAnswers(answers.map((x, j) => (j === i ? { ...x, answer: e.target.value } : x)))} />
+        </div>
+      ))}
+      <p className="faint" style={{ margin: 0, fontSize: 13 }}>No files are attached and the proposal isn&rsquo;t boosted.</p>
+      <InviteSteps act={act} online={online} queued={queued} dirty={dirty}
+        onSave={() => go(() => saveInvitationDraft(act.id, { cover_letter: letter, bid, answers }), "Saved. Preview it on Upwork next.")} />
+      {busy && <span className="faint" style={{ fontSize: 12 }}>Saving…</span>}
+    </div>
+  );
+}
+
+function InviteDecline({ act, online, queued }: { act: UpworkAction; online: boolean; queued: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <p className="muted" style={{ margin: 0, fontSize: 14 }}>You are declining this invitation. The client is told, and no message is sent with it.</p>
+      <InviteSteps act={act} online={online} queued={queued} />
+    </div>
   );
 }
 

@@ -7,7 +7,7 @@ export type CommandKind =
   | "test_agent" | "refresh_models" | "pull_model"
   | "mcp_check" | "mcp_add" | "mcp_login" | "mcp_remove"
   | "run_now" | "pause" | "resume" | "regenerate_draft" | "draft_job"
-  | "upwork_sync" | "profile_sync" | "upwork_preview" | "upwork_confirm";
+  | "upwork_sync" | "profile_sync" | "upwork_preview" | "upwork_confirm" | "invitation_draft";
 
 export interface CommandPayloads {
   test_agent: { agent: AgentId };
@@ -26,13 +26,14 @@ export interface CommandPayloads {
   profile_sync: Record<string, never>;   // compare admin profile with Upwork, propose updates as draft actions
   upwork_preview: { action_id: string }; // ask Upwork for a preview of one profile update (changes nothing)
   upwork_confirm: { action_id: string }; // you pressed Confirm: run the previewed update / send the reply
+  invitation_draft: { invitation_id: string }; // write a cover letter / bid / answers for one invitation (read-only)
 }
 
 // Kinds the v1 worker actually handles. The rest exist in the schema for the job pipeline and fail with a clear
 // "not in v1" error until it's built.
 export const V1_COMMANDS: CommandKind[] = [
   "test_agent", "refresh_models", "pull_model", "mcp_check", "mcp_add", "mcp_login", "mcp_remove", "run_now", "draft_job",
-  "upwork_sync", "profile_sync", "upwork_preview", "upwork_confirm",
+  "upwork_sync", "profile_sync", "upwork_preview", "upwork_confirm", "invitation_draft",
 ];
 
 // An OAuth login waits for you to finish signing in in the browser.

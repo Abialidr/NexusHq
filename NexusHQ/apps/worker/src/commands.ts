@@ -11,7 +11,7 @@ import { loadAgentConfigs } from "./agents.ts";
 import { mcpAdd, mcpLogin, mcpRemove } from "./mcp.ts";
 import { draftOne, runFindJobs } from "./pipeline.ts";
 import type { Status } from "./status.ts";
-import { confirmAction, previewAction, profileSync, syncUpwork } from "./upwork.ts";
+import { confirmAction, draftInvitation, previewAction, profileSync, syncUpwork } from "./upwork.ts";
 
 export interface CommandRow {
   id: string;
@@ -113,6 +113,10 @@ const handlers: Partial<Record<CommandKind, (p: Record<string, unknown>, ctx: Ct
   },
   async profile_sync(_p, { supabase }) {
     return profileSync(supabase);
+  },
+  async invitation_draft(p, { supabase }) {
+    if (typeof p.invitation_id !== "string" || !p.invitation_id) throw new Error("Missing invitation_id");
+    return draftInvitation(supabase, p.invitation_id);
   },
   async upwork_preview(p, { supabase }) {
     if (typeof p.action_id !== "string" || !p.action_id) throw new Error("Missing action_id");

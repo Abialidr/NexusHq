@@ -15,7 +15,8 @@ import { SCOUT_SERVER, SCOUT_TOOLS, SCOUT_URL, setScoutRun, startScoutServer, ty
 const SESSION_MS = 60 * 60_000;        // one agent session; the scout resumes from its scratchpad after
 const QUOTA_RETRY_MS = 5 * 60_000;     // while agy is out of quota / signed out
 const SILENT_WARN_MS = 10 * 60_000;
-const MAX_IDLE_SESSIONS = 3;           // sessions in a row that accepted or rejected nothing
+const MAX_IDLE_SESSIONS = 6;           // sessions in a row that accepted or rejected nothing (each one waits longer first)
+const IDLE_BACKOFF_MAX_MIN = 10;       // pause after an empty session: 1, 2, 4, 8, 10 min
 
 const SCOUT_SCHEMA: Schema = {
   type: "object", additionalProperties: false, required: ["status", "summary"],
@@ -180,6 +181,12 @@ export async function runScout(supabase: SupabaseClient, o: {
       if (status === "exhausted" || stats.accepted >= o.target) break;
       idle = stats.judged === before ? idle + 1 : 0;
       if (idle >= MAX_IDLE_SESSIONS) { await o.log(`scout made no progress in ${idle} sessions in a row; stopping the search`); break; }
+      if (idle > 0) {
+        // Quick empty sessions are usually agy hiccups or a rate limit, not "nothing left": wake it up again after a growing pause.
+        const waitMin = Math.min(2 ** (idle - 1), IDLE_BACKOFF_MAX_MIN);
+        await o.log(`😴 session ${session} judged nothing (${idle}/${MAX_IDLE_SESSIONS} empty in a row); waiting ${waitMin} min, then waking the scout again`);
+        await sleep(waitMin * 60_000, o.signal);
+      }
     }
   } finally {
     clearInterval(heartbeat);

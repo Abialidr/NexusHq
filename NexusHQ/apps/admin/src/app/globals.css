@@ -313,7 +313,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .side { box-shadow: none; }                      /* the off-screen sidebar's shadow was bleeding onto the page edges */
   body.nav-open .side { box-shadow: var(--shadow-lg); }
   .job-row { flex-wrap: wrap; }
-  .job-row > span:nth-child(2) { flex: 1 1 calc(100% - 70px); }
+  .job-row .job-main { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+  .cmd-detail.mono { max-height: 220px; overflow: auto; font-size: 11px; }
   .job-row .job-chips { flex: 1 1 100%; justify-content: flex-start !important; }
 }
 @media (max-width: 1000px) {
@@ -336,6 +337,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .card:has(table) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .card:has(table) table { min-width: 560px; }
   th, td { padding: 10px 12px; }
+  /* small data tables (Upwork invitations, proposals, offers, contracts) become one stacked card per row */
+  .card:has(table.stack) table { min-width: 0; }
+  table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; width: 100%; }
+  table.stack thead { display: none; }
+  table.stack tr { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; cursor: default; }
+  table.stack td { display: flex; gap: 10px; padding: 5px 0; border: 0; overflow-wrap: anywhere; }
+  table.stack td::before { content: attr(data-label); flex: 0 0 84px; font-size: 12px; font-weight: 600; color: var(--faint); }
   .card-head, .toolbar { padding: 12px; }
   .card-head { flex-wrap: wrap; }
   .tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }

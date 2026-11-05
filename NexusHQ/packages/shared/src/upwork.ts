@@ -24,7 +24,7 @@ export const ACTION_STATUSES = ["draft", "previewing", "preview_ready", "confirm
 export type ActionStatus = (typeof ACTION_STATUSES)[number];
 
 export interface UpworkAction {
-  id: string; kind: "profile_update" | "message"; action: string; params: Record<string, unknown>;
+  id: string; kind: "profile_update" | "message" | "invitation"; action: string; params: Record<string, unknown>;
   label: string; reason: string; current: string; preview: unknown; preview_id: string | null;
   status: ActionStatus; error: string | null; result: unknown; created_at: string; updated_at: string;
 }

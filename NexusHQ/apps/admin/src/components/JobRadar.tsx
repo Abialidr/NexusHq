@@ -170,7 +170,7 @@ export default function JobRadar({ jobs, runs, pending, online, needsMigration }
                 <button className="row-flex job-row" style={{ width: "100%", padding: "14px 18px", textAlign: "left", gap: 12, alignItems: "flex-start" }}
                   onClick={() => setOpen(isOpen ? null : j.id)} aria-expanded={isOpen}>
                   {j.score != null && <span className="chip pub plain" style={{ minWidth: 42, justifyContent: "center" }} title="Fit score">{j.score}</span>}
-                  <span style={{ flex: 1, minWidth: 0 }}>
+                  <span className="job-main" style={{ flex: 1, minWidth: 0 }}>
                     <b style={{ display: "block" }}>{j.title || "(untitled job)"}</b>
                     <span className="faint" style={{ fontSize: 13 }}>
                       {[j.summary.budget, j.summary.job_type, j.summary.experience_level, j.summary.proposals_tier, j.summary.client_country].filter(Boolean).join(" · ")}

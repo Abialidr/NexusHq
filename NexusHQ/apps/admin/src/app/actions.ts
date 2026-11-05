@@ -285,6 +285,9 @@ export async function queueCommand(kind: string, payload: Values = {}): Promise<
   } else if (kind === "draft_job") {
     if (!UUID_RE.test(str(payload.job_id))) return { ok: false, error: "Unknown job." };
     clean = { job_id: str(payload.job_id) };
+  } else if (kind === "invitation_draft") {
+    if (!/^\d{6,30}$/.test(str(payload.invitation_id))) return { ok: false, error: "Unknown invitation." };
+    clean = { invitation_id: str(payload.invitation_id) };
   } else if (kind === "upwork_preview" || kind === "upwork_confirm") {
     // Upwork writes are queued only by the actions below, after their status checks.
     return { ok: false, error: "Use the Preview / Confirm buttons." };
@@ -385,7 +388,7 @@ export async function previewProfileAction(id: string): Promise<ActionResult> {
   if (!UUID_RE.test(id)) return { ok: false, error: "Unknown update." };
   const supabase = await createClient();
   const { data: act } = await supabase.from("upwork_actions").select("status, kind").eq("id", id).maybeSingle();
-  if (!act || act.kind !== "profile_update") return { ok: false, error: "Unknown update." };
+  if (!act || !["profile_update", "invitation"].includes(act.kind)) return { ok: false, error: "Unknown update." };
   if (!["draft", "preview_ready", "error"].includes(act.status)) return { ok: false, error: `This update is ${act.status}.` };
   return queueUpwork("upwork_preview", id);
 }
@@ -397,10 +400,45 @@ export async function confirmProfileAction(id: string): Promise<ActionResult> {
   if (!UUID_RE.test(id)) return { ok: false, error: "Unknown update." };
   const supabase = await createClient();
   const { data, error } = await supabase.from("upwork_actions").update({ status: "confirming" })
-    .eq("id", id).eq("kind", "profile_update").eq("status", "preview_ready").select("id");
+    .eq("id", id).in("kind", ["profile_update", "invitation"]).eq("status", "preview_ready").select("id");
   if (error) return fail(error);
   if (!data?.length) return { ok: false, error: "Preview it on Upwork first." };
   return queueUpwork("upwork_confirm", id);
+}
+
+// Your edits to an invitation reply (cover letter, bid, screening answers). A changed reply needs a new preview.
+export async function saveInvitationDraft(id: string, values: { cover_letter: string; bid: string; answers: { question: string; answer: string }[] }): Promise<ActionResult> {
+  await requireAdmin();
+  if (!UUID_RE.test(id)) return { ok: false, error: "Unknown reply." };
+  const cover = str(values.cover_letter);
+  if (cover.length > 5000) return { ok: false, error: "The cover letter is over 5000 characters (Upwork's limit)." };
+  const bid = str(values.bid);
+  if (bid && !(Number.parseFloat(bid) > 0)) return { ok: false, error: "The bid must be a number above 0." };
+  const answers = (Array.isArray(values.answers) ? values.answers : []).slice(0, 30).map((a) => ({ question: str(a.question).slice(0, 1000), answer: str(a.answer).slice(0, 5000) }));
+  const supabase = await createClient();
+  const { data: act } = await supabase.from("upwork_actions").select("params, status, kind, action").eq("id", id).maybeSingle();
+  if (!act || act.kind !== "invitation" || act.action !== "accept") return { ok: false, error: "Unknown reply." };
+  if (!["draft", "preview_ready", "error"].includes(act.status)) return { ok: false, error: `This reply is ${act.status}.` };
+  const params = { ...(act.params as Record<string, unknown>), cover_letter: cover, bid, answers };
+  const { error } = await supabase.from("upwork_actions").update({ params: params as Json, status: "draft", preview: null, preview_id: null, error: null }).eq("id", id);
+  revalidatePath("/upwork");
+  return error ? fail(error) : { ok: true };
+}
+
+// "Decline invitation": creates a decline row that still needs Preview on Upwork and Confirm before anything happens.
+export async function startDeclineInvitation(invitationId: string, jobTitle: string, client: string): Promise<ActionResult> {
+  await requireAdmin();
+  if (HOSTED) return { ok: false, error: HOSTED_ONLY_LOCAL };
+  if (!/^\d{6,30}$/.test(invitationId)) return { ok: false, error: "Unknown invitation." };
+  const supabase = await createClient();
+  await supabase.from("upwork_actions").update({ status: "cancelled" })
+    .eq("kind", "invitation").eq("params->>invitation_uid", invitationId).in("status", ["draft", "preview_ready", "error"]);
+  const { error } = await supabase.from("upwork_actions").insert({
+    kind: "invitation", action: "decline", label: str(jobTitle).slice(0, 200) || "Invitation", reason: str(client).slice(0, 200), status: "draft",
+    params: { invitation_uid: invitationId } as Json,
+  });
+  revalidatePath("/upwork");
+  return error ? fail(error) : { ok: true };
 }
 
 export async function cancelUpworkAction(id: string): Promise<ActionResult> {
